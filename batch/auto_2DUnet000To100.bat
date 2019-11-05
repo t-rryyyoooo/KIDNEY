@@ -4,13 +4,13 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 cd %~dp0
 
 ::data path
-set training=C:\Users\VMLAB\Desktop\secondKidney\trainingList\margeTraining_
-set validation=C:\Users\VMLAB\Desktop\secondKidney\validationList\margeValidation_
+set training=C:\Users\VMLAB\Desktop\KIDNEY\trainingList\margeTraining_
+set validation=C:\Users\VMLAB\Desktop\KIDNEY\validationList\margeValidation_
 
 
-set model=C:\Users\VMLAB\Desktop\secondKidney\modelFolder\2DUnetModel_re
-set weight=C:\Users\VMLAB\Desktop\secondKidney\weightFolder\best_re
-set history=C:\Users\VMLAB\Desktop\secondKidney\history\history_re
+set model=C:\Users\VMLAB\Desktop\KIDNEY\modelFolder\2DUnetModel_re
+set weight=C:\Users\VMLAB\Desktop\KIDNEY\weightFolder\best_re
+set history=C:\Users\VMLAB\Desktop\KIDNEY\history\history_re
 
 set rate[0]=0.0
 set rate[1]=0.05
