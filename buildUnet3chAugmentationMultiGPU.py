@@ -8,6 +8,7 @@ import random
 #import keras
 #import keras.backend as K
 import time
+from tensorflow.keras.utils import multi_gpu_model
 
 args = None
 
@@ -33,6 +34,8 @@ def ParseArgs():
     #parser.add_argument("--split", help="Fraction of the training data to be used as validation data.", default=0.0, type=float)
     parser.add_argument("--logdir", help="Log directory", default='log')
     parser.add_argument("-g", "--gpuid", help="ID of GPU to be used for segmentation. [default=0]", default=0, type=int)
+    parser.add_argument("--gpu_count", help="The number of GPU you use", default=2, type=int)
+
     parser.add_argument("--history")
 
     args = parser.parse_args()
@@ -486,7 +489,7 @@ def kidney_dice(y_true, y_pred):#canver
 
 def penalty_categorical(y_true,y_pred):
     K = tf.keras.backend
-    
+
     array_tf = tf.convert_to_tensor(y_true,dtype=tf.float32)
     pred_tf = tf.convert_to_tensor(y_pred,dtype=tf.float32)
 
@@ -516,9 +519,14 @@ def caluculateTime( start, end):
 def main(_):
     t1 = time.time()
 
-    config = tf.ConfigProto()
+    config = tf.ConfigProto(
+        gpu_options=tf.GPUOptions(
+            per_process_gpu_memory_fraction=0.5
+        )
+    )
     config.gpu_options.allow_growth = True
     config.allow_soft_placement = True
+    
     sess = tf.Session(config=config)
     tf.keras.backend.set_session(sess)
 
@@ -532,16 +540,18 @@ def main(_):
     nclasses = 3 # Number of classes
     print("image shapes: ",imageshape)
     print("label shapes: ",labelshape)
-
-    with tf.device('/device:CPU:{}'.format(args.gpuid)):
+    
+    #with tf.device('/device:GPU:{}'.format(args.gpuid)):
+    with tf.device('/device:CPU:0'):
         x = tf.keras.layers.Input(shape=imageshape, name="x")
         segmentation = ConstructModel(x, nclasses, not args.nobn, not args.nodropout)
         model = tf.keras.models.Model(x, segmentation)
         model.summary()
 
         optimizer = tf.keras.optimizers.Adam(lr=args.learningrate)
-
-        model.compile(loss=penalty_categorical, optimizer=optimizer, metrics=[kidney_dice, cancer_dice])
+        
+    model = multi_gpu_model(model, gpus=args.gpu_count)
+    model.compile(loss=penalty_categorical, optimizer=optimizer, metrics=[kidney_dice, cancer_dice])
 
     createParentPath(args.modelfile)
     with open(args.modelfile, 'w') as f:
@@ -590,36 +600,36 @@ def main(_):
     print ("Number of Steps/epoch: {}".format(steps_per_epoch))
     
 
-    with tf.device('/device:CPU:{}'.format(args.gpuid)):
-        if not args.noaugmentation:
-            if testdatalist is not None:
-                
-                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
-                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                        callbacks=callbacks,
-                        validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
-                        validation_steps = len(testdatalist),
-                        initial_epoch = int(initial_epoch))
-            else:
-                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
-                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                        callbacks=callbacks,
-                        initial_epoch = int(initial_epoch))
-        
+    #with tf.device('/device:GPU:{}'.format(args.gpuid)):
+    if not args.noaugmentation:
+        if testdatalist is not None:
+            
+            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
+                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                    callbacks=callbacks,
+                    validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
+                    validation_steps = len(testdatalist),
+                    initial_epoch = int(initial_epoch))
         else:
-            if testdatalist is not None:
-                
-                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
-                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                        callbacks=callbacks,
-                        validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
-                        validation_steps = len(testdatalist),
-                        initial_epoch = int(initial_epoch))
-            else:
-                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
-                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                        callbacks=callbacks,
-                        initial_epoch = int(initial_epoch))
+            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
+                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                    callbacks=callbacks,
+                    initial_epoch = int(initial_epoch))
+    
+    else:
+        if testdatalist is not None:
+            
+            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
+                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                    callbacks=callbacks,
+                    validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
+                    validation_steps = len(testdatalist),
+                    initial_epoch = int(initial_epoch))
+        else:
+            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
+                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                    callbacks=callbacks,
+                    initial_epoch = int(initial_epoch))
 
 
     
