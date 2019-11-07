@@ -11,7 +11,7 @@ import time
 
 args = None
 # Specify which GPU(s) to use
-os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0" 
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
