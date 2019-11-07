@@ -533,7 +533,7 @@ def main(_):
     print("image shapes: ",imageshape)
     print("label shapes: ",labelshape)
 
-    with tf.device('/device:CPU:{}'.format(args.gpuid)):
+    with tf.device('/device:GPU:{}'.format(args.gpuid)):
         x = tf.keras.layers.Input(shape=imageshape, name="x")
         segmentation = ConstructModel(x, nclasses, not args.nobn, not args.nodropout)
         model = tf.keras.models.Model(x, segmentation)
@@ -590,7 +590,7 @@ def main(_):
     print ("Number of Steps/epoch: {}".format(steps_per_epoch))
     
 
-    with tf.device('/device:CPU:{}'.format(args.gpuid)):
+    with tf.device('/device:GPU:{}'.format(args.gpuid)):
         if not args.noaugmentation:
             if testdatalist is not None:
                 
