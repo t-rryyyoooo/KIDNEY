@@ -1,7 +1,7 @@
 import sys
 import os
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 import argparse
 import SimpleITK as sitk
 import random
@@ -10,6 +10,8 @@ import random
 import time
 
 args = None
+# Specify which GPU(s) to use
+os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
@@ -516,10 +518,15 @@ def caluculateTime( start, end):
 def main(_):
     t1 = time.time()
 
-    config = tf.ConfigProto()
+    config = tf.compat.v1.ConfigProto(
+    #      gpu_options=tf.GPUOptions(
+    #     visible_device_list="0.8"
+    # )
+    allow_soft_placement=True, log_device_placement=True
+    )
     config.gpu_options.allow_growth = True
     config.allow_soft_placement = True
-    sess = tf.Session(config=config)
+    sess = tf.compat.v1.Session(config=config)
     tf.keras.backend.set_session(sess)
 
     trainingdatalist = ReadSliceDataList3ch_1ch(args.trainingdatafile)
@@ -650,6 +657,6 @@ if __name__ == '__main__':
     args = ParseArgs()
     
 
-    tf.app.run(main=main, argv=[sys.argv[0]])
+    tf.compat.v1.app.run(main=main, argv=[sys.argv[0]])
 
     

@@ -81,12 +81,12 @@ with tf.device("/device:GPU:0"):
     metrics=['accuracy']
     )
 
-    tsb = TensorBoard(log_dir="./log")
+    #tsb = TensorBoard(log_dir="./log")
     history_model1 = model.fit(
         x_train,
         y_train,
         batch_size=32,
         epochs=2,
         validation_split=0.2,
-        callbacks=[tsb]
+        #callbacks=[tsb]
     )
