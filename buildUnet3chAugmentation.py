@@ -540,7 +540,8 @@ def main(_):
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
         x = tf.keras.layers.Input(shape=imageshape, name="x")
         segmentation = ConstructModel(x, nclasses, not args.nobn, not args.nodropout)
-        model = tf.keras.models.Model(x, segmentation)
+        model = 
+        #model = tf.keras.models.Model(x, segmentation)
         model.summary()
 
         optimizer = tf.keras.optimizers.Adam(lr=args.learningrate)
@@ -582,7 +583,7 @@ def main(_):
         else:
             bestfile = args.bestfile
             createParentPath(bestfile)
-        chkp_cbk = tf.keras.callbacks.ModelCheckpoint(filepath=bestfile, save_best_only = True, save_weights_only = True)
+        chkp_cbk = tf.keras.callbacks.ModelCheckpoint(filepath=bestfile, save_best_only = True, save_weights_only = False)
         callbacks.append(chkp_cbk)
     if args.weightinterval is not None:
         periodic_cbk = PeriodicWeightSaver(logdir=args.logdir, interval=args.weightinterval)

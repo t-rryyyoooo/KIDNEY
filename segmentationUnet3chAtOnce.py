@@ -380,17 +380,17 @@ def inverse_image(roi, cutKidFragLabel, wh, center, angle,labelArray, i):
     return iImg
 
 def main(_):
-    config = tf.ConfigProto()
+    config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
     config.allow_soft_placement = True
     #config.log_device_placement = True
-    sess = tf.Session(config=config)
-    tf.keras.backend.set_session(sess)
+    sess = tf.compat.v1.Session(config=config)
+    tf.compat.v1.keras.backend.set_session(sess)
 
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
         print('loading U-net model {}...'.format(args.modelfile), end='', flush=True)
         with open(args.modelfile) as f:
-            model = tf.keras.models.model_from_yaml(f.read())
+            model = tf.compat.v1.keras.models.model_from_yaml(f.read())
         model.load_weights(args.modelweightfile)
         print('done')
 
@@ -682,4 +682,4 @@ def main(_):
 
 if __name__ == '__main__':
     args = ParseArgs()
-    tf.app.run(main=main, argv=[sys.argv[0]])
+    tf.compat.v1.app.run(main=main, argv=[sys.argv[0]])
