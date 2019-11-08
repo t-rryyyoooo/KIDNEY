@@ -11,8 +11,7 @@ import time
 
 
 args = None
-# Specify which GPU(s) to use
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0" 
+
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
@@ -40,6 +39,7 @@ def ParseArgs():
 
     args = parser.parse_args()
     return args
+
 
 
 def createParentPath(filepath):
@@ -519,10 +519,13 @@ def caluculateTime( start, end):
 def main(_):
     t1 = time.time()
 
+    # Specify which GPU(s) to use
+    #os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpuid) 
+
     config = tf.compat.v1.ConfigProto(
          gpu_options=tf.GPUOptions(
         per_process_gpu_memory_fraction=0.9,
-        #visible_device_list="0"
+        #visible_device_list='1'
     ),
     allow_soft_placement=True, log_device_placement=True
     )
@@ -543,7 +546,7 @@ def main(_):
     print("label shapes: ",labelshape)
 
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
-    #with tf.device('/device:GPU'):
+    #with tf.device('/device:CPU:0'):
         x = tf.keras.layers.Input(shape=imageshape, name="x")
         segmentation = ConstructModel(x, nclasses, not args.nobn, not args.nodropout)
         model = tf.keras.models.Model(x, segmentation)
@@ -602,36 +605,36 @@ def main(_):
     print ("Number of Steps/epoch: {}".format(steps_per_epoch))
     
 
-    #with tf.device('/device:GPU:{}'.format(args.gpuid)):
-    if not args.noaugmentation:
-        if testdatalist is not None:
-            
-            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
-                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                    callbacks=callbacks,
-                    validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
-                    validation_steps = len(testdatalist),
-                    initial_epoch = int(initial_epoch))
+    with tf.device('/device:GPU:{}'.format(args.gpuid)):
+        if not args.noaugmentation:
+            if testdatalist is not None:
+                
+                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
+                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                        callbacks=callbacks,
+                        validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
+                        validation_steps = len(testdatalist),
+                        initial_epoch = int(initial_epoch))
+            else:
+                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
+                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                        callbacks=callbacks,
+                        initial_epoch = int(initial_epoch))
+        
         else:
-            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = True),
-                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                    callbacks=callbacks,
-                    initial_epoch = int(initial_epoch))
-    
-    else:
-        if testdatalist is not None:
-            
-            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
-                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                    callbacks=callbacks,
-                    validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
-                    validation_steps = len(testdatalist),
-                    initial_epoch = int(initial_epoch))
-        else:
-            historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
-                    steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
-                    callbacks=callbacks,
-                    initial_epoch = int(initial_epoch))
+            if testdatalist is not None:
+                
+                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
+                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                        callbacks=callbacks,
+                        validation_data = ImportBatchArray(testdatalist, batch_size = args.batchsize),
+                        validation_steps = len(testdatalist),
+                        initial_epoch = int(initial_epoch))
+            else:
+                historys = model.fit_generator(ImportBatchArray(trainingdatalist, batch_size = args.batchsize, apply_augmentation = False),
+                        steps_per_epoch = int(steps_per_epoch), epochs = args.epochs,
+                        callbacks=callbacks,
+                        initial_epoch = int(initial_epoch))
 
 
     

@@ -10,8 +10,7 @@ import random
 import time
 
 args = None
-# Specify which GPU(s) to use
-os.environ["CUDA_VISIBLE_DEVICES"] = "0" 
+
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
@@ -519,10 +518,8 @@ def main(_):
     t1 = time.time()
 
     config = tf.compat.v1.ConfigProto(
-    #      gpu_options=tf.GPUOptions(
-    #     visible_device_list="0.8"
-    # )
-    allow_soft_placement=True, log_device_placement=True
+    
+    #allow_soft_placement=True, log_device_placement=True
     )
     config.gpu_options.allow_growth = True
     config.allow_soft_placement = True
