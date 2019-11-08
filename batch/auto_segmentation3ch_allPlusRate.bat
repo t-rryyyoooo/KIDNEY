@@ -15,8 +15,8 @@ set rate=0.50,0.55,0.60,0.65,0.70
 for %%r in (%rate%)do (
     for %%i in (%numRandom%) do (
 
-        set weight=C:\Users\VMLAB\Desktop\secondKidney\weightFolder\best_re%%r.hdf5
-        set model=C:\Users\VMLAB\Desktop\secondKidney\modelFolder\2DUnetModel_re%%r.yml
+        set weight=C:\Users\VMLAB\Desktop\KIDNEY\weightFolder\best_re%%r.hdf5
+        set model=C:\Users\VMLAB\Desktop\KIDNEY\modelFolder\2DUnetModel_re%%r.yml
         set save=E:\slice\layers_1_hist_org_%%r\segmentation\case_00
         set savepath=!save!%%i\label.mha
         set ct=%data%%%i%image%
