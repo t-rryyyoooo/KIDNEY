@@ -540,7 +540,7 @@ def main(_):
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
         x = tf.keras.layers.Input(shape=imageshape, name="x")
         segmentation = ConstructModel(x, nclasses, not args.nobn, not args.nodropout)
-        model = 
+        model = tf.compat.v1.keras.Model(x, segmentation)
         #model = tf.keras.models.Model(x, segmentation)
         model.summary()
 
@@ -549,8 +549,9 @@ def main(_):
         model.compile(loss=penalty_categorical, optimizer=optimizer, metrics=[kidney_dice, cancer_dice])
 
     createParentPath(args.modelfile)
-    with open(args.modelfile, 'w') as f:
-        f.write(model.to_yaml())
+    # with open(args.modelfile, 'w') as f:
+    #     f.write(model.to_yaml())
+    tf.compat.v1.keras.models.save_model(model, args.modelfile)
 
     if args.weightfile is None:
         initial_epoch = 0

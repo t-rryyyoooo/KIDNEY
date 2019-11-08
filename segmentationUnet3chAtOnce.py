@@ -29,6 +29,7 @@ def ParseArgs():
     args = parser.parse_args()
     return args
 
+
 def createParentPath(filepath):
     head, _ = os.path.split(filepath)
     if len(head) != 0:
@@ -389,9 +390,11 @@ def main(_):
 
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
         print('loading U-net model {}...'.format(args.modelfile), end='', flush=True)
-        with open(args.modelfile) as f:
-            model = tf.compat.v1.keras.models.model_from_yaml(f.read())
-        model.load_weights(args.modelweightfile)
+        # with open(args.modelfile) as f:
+        #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
+        # model.load_weights(args.modelweightfile)
+        model = tf.compat.v1.keras.models.load_model('/home/kakeya/Desktop/tanimoto/KIDNEY/testb.hdf5')
+
         print('done')
 
     createParentPath(args.savepath)
