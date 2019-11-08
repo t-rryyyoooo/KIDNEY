@@ -551,7 +551,7 @@ def main(_):
     createParentPath(args.modelfile)
     # with open(args.modelfile, 'w') as f:
     #     f.write(model.to_yaml())
-    tf.compat.v1.keras.models.save_model(model, args.modelfile)
+    #tf.compat.v1.keras.models.save_model(model, args.modelfile)
 
     if args.weightfile is None:
         initial_epoch = 0

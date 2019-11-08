@@ -17,7 +17,7 @@ def ParseArgs():
     parser.add_argument("labelfile", help="Labelfile")
     parser.add_argument("imagefile", help="imagefile")
     parser.add_argument("-l", "--layers", help="Number of laywers", default=5, type=int)
-    parser.add_argument("modelfile", help="U-net model file (*.yml).")
+    #parser.add_argument("modelfile", help="U-net model file (*.yml).")
     parser.add_argument("modelweightfile", help="Trained model weights file (*.hdf5).")
     parser.add_argument("savepath", help="Segmented label file.(.mha)")
     parser.add_argument("alpha", default=0.0, type=float)
@@ -29,6 +29,56 @@ def ParseArgs():
     args = parser.parse_args()
     return args
 
+def cancer_dice(y_true, y_pred):
+    K = tf.keras.backend
+
+    eps = K.constant(1e-6)
+    truelabels = tf.argmax(y_true, axis=-1, output_type=tf.int32)
+    predictions = tf.argmax(y_pred, axis=-1, output_type=tf.int32)
+    
+    truelabel = K.cast(K.equal(truelabels, 2), tf.int32)##ガンだけ
+    prediction = K.cast(K.equal(predictions, 2), tf.int32)
+
+    intersection = K.cast(K.sum(K.minimum(K.cast(K.equal(prediction, truelabel), tf.int32), truelabel)), tf.float32)
+    union = tf.count_nonzero(prediction, dtype=tf.float32) + tf.count_nonzero(truelabel, dtype=tf.float32)
+    dice = 2 * intersection / (union + eps)
+    return dice
+
+def kidney_dice(y_true, y_pred):#canver
+    K = tf.keras.backend
+
+    eps = K.constant(1e-6)
+    truelabels = tf.argmax(y_true, axis=-1, output_type=tf.int32)
+    predictions = tf.argmax(y_pred, axis=-1, output_type=tf.int32)
+    
+    truelabel = K.cast(K.equal(truelabels, 1), tf.int32)##腎臓だけ
+    prediction = K.cast(K.equal(predictions, 1), tf.int32)
+
+    intersection = K.cast(K.sum(K.minimum(K.cast(K.equal(prediction, truelabel), tf.int32), truelabel)), tf.float32)
+    union = tf.count_nonzero(prediction, dtype=tf.float32) + tf.count_nonzero(truelabel, dtype=tf.float32)
+    dice = 2 * intersection / (union + eps)
+    return dice
+
+def penalty_categorical(y_true,y_pred):
+    K = tf.keras.backend
+    
+    array_tf = tf.convert_to_tensor(y_true,dtype=tf.float32)
+    pred_tf = tf.convert_to_tensor(y_pred,dtype=tf.float32)
+
+    epsilon = K.epsilon()
+
+    result = tf.reduce_sum(array_tf,[0,1,2,3])
+
+    #result_pow = tf.pow(result,1.0/3.0)
+    result_pow = tf.math.log(result)
+
+    weight_y = result_pow / tf.reduce_sum(result_pow)
+
+    k_dice = kidney_dice(y_true, y_pred)
+    c_dice = cancer_dice(y_true, y_pred)
+
+    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.log(pred_tf + epsilon),axis=-1) \
+       + (1 - k_dice) + (1 - c_dice)
 
 def createParentPath(filepath):
     head, _ = os.path.split(filepath)
@@ -393,7 +443,8 @@ def main(_):
         # with open(args.modelfile) as f:
         #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
         # model.load_weights(args.modelweightfile)
-        model = tf.compat.v1.keras.models.load_model('/home/kakeya/Desktop/tanimoto/KIDNEY/testb.hdf5')
+        model = tf.compat.v1.keras.models.load_model('/home/kakeya/Desktop/tanimoto/KIDNEY/testb.hdf5',
+         custom_objects={'penalty_categorical' : penalty_categorical, 'kidney_dice':kidney_dice, 'cancer_dice':cancer_dice})
 
         print('done')
 
