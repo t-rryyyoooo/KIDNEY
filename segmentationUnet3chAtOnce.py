@@ -443,7 +443,7 @@ def main(_):
         # with open(args.modelfile) as f:
         #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
         # model.load_weights(args.modelweightfile)
-        model = tf.compat.v1.keras.models.load_model('/home/kakeya/Desktop/tanimoto/KIDNEY/testb.hdf5',
+        model = tf.compat.v1.keras.models.load_model(args.modelweightfile,
          custom_objects={'penalty_categorical' : penalty_categorical, 'kidney_dice':kidney_dice, 'cancer_dice':cancer_dice})
 
         print('done')
