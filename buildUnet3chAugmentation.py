@@ -15,7 +15,8 @@ args = None
 def ParseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("trainingdatafile", help="Input Dataset file for training")
-    parser.add_argument("modelfile", help="Output trained model file in HDF5 format (*.hdf5).")
+    parser.add_argument("bestfile", help="The filename of the best weights.")
+    #parser.add_argument("modelfile", help="Output trained model file in HDF5 format (*.hdf5).")
     parser.add_argument("-t","--testfile", help="Input Dataset file for validation")
     parser.add_argument("-e", "--epochs", help="Number of epochs", default=1000, type=int)
     parser.add_argument("-b", "--batchsize", help="Batch size", default=10, type=int)
@@ -438,22 +439,6 @@ class PeriodicWeightSaver(tf.keras.callbacks.Callback):
             filename = self.logdir_ + "/weights_e{:02d}.hdf5".format(epoch)
             self.model.save_weights(filename)
 
-# def penalty_categorical(y_true,y_pred):
-#     array_tf = tf.convert_to_tensor(y_true,dtype=tf.float32)
-#     pred_tf = tf.convert_to_tensor(y_pred,dtype=tf.float32)
-
-#     epsilon = K.epsilon()
-
-#     result = tf.reduce_sum(array_tf,[0,1,2,3])
-
-#     #result_pow = tf.pow(result,1.0/3.0)
-#     result_pow = tf.math.log(result)
-
-#     weight_y = result_pow / tf.reduce_sum(result_pow)
-
-#     return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.log(pred_tf + epsilon),axis=-1)
-
-
 
 def cancer_dice(y_true, y_pred):
     K = tf.keras.backend
@@ -503,7 +488,7 @@ def penalty_categorical(y_true,y_pred):
     k_dice = kidney_dice(y_true, y_pred)
     c_dice = cancer_dice(y_true, y_pred)
 
-    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.log(pred_tf + epsilon),axis=-1) \
+    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.math.log(pred_tf + epsilon),axis=-1) \
        + (1 - k_dice) + (1 - c_dice)
 
 
@@ -524,7 +509,7 @@ def main(_):
     config.gpu_options.allow_growth = True
     config.allow_soft_placement = True
     sess = tf.compat.v1.Session(config=config)
-    tf.keras.backend.set_session(sess)
+    tf.compat.v1.keras.backend.set_session(sess)
 
     trainingdatalist = ReadSliceDataList3ch_1ch(args.trainingdatafile)
     testdatalist = None
@@ -548,7 +533,7 @@ def main(_):
 
         model.compile(loss=penalty_categorical, optimizer=optimizer, metrics=[kidney_dice, cancer_dice])
 
-    createParentPath(args.modelfile)
+    #createParentPath(args.modelfile)
     # with open(args.modelfile, 'w') as f:
     #     f.write(model.to_yaml())
     #tf.compat.v1.keras.models.save_model(model, args.modelfile)

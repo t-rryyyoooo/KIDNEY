@@ -77,7 +77,7 @@ def penalty_categorical(y_true,y_pred):
     k_dice = kidney_dice(y_true, y_pred)
     c_dice = cancer_dice(y_true, y_pred)
 
-    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.log(pred_tf + epsilon),axis=-1) \
+    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.math.log(pred_tf + epsilon),axis=-1) \
        + (1 - k_dice) + (1 - c_dice)
 
 def createParentPath(filepath):
@@ -439,7 +439,7 @@ def main(_):
     tf.compat.v1.keras.backend.set_session(sess)
 
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
-        print('loading U-net model {}...'.format(args.modelfile), end='', flush=True)
+        print('loading U-net model {}...'.format(args.modelweightfile), end='', flush=True)
         # with open(args.modelfile) as f:
         #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
         # model.load_weights(args.modelweightfile)
@@ -724,6 +724,7 @@ def main(_):
     LF.SetDirection(label.GetDirection())
     
     print('saving segmented label to {}...'.format(args.savepath), end='', flush=True)
+    
     sitk.WriteImage(LF, args.savepath, True)
         
         #print("The number of images without kidney: ", noKidImg)            
