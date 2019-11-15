@@ -13,7 +13,7 @@ readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 16
 
 #readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
 #readonly ALPHA=(1.0 0.95 0.90 0.85 0.80 0.75 0.70 0.65 0.60 0.55)
-readonly ALPHA=(0.40 0.60 0.80 1.00)
+readonly ALPHA=(0.40 0.60 0.80 1.0)
 i=0
 A=0.95
 N=173
@@ -27,7 +27,7 @@ do
 
             weight="${WEIGHT}${alpha}_${t}.hdf5"
             #model=${MODEL}${alpha}.yml
-            save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
+            save="${SAVE}${alpha}/segmentation/${t}times/case_00${number}/label.mha"
             ct=${DATA}${number}${CT}
             label=${DATA}${number}${LABEL}
 
@@ -38,6 +38,7 @@ do
             #echo $model 
             echo $save
             echo $alpha
+            echo "GPU ID : $1"
 
             python3 segmentationUnet3chAtOnce.py $label $ct $model $weight $save $alpha -g $1
 

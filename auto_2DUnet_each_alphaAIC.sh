@@ -8,12 +8,12 @@ readonly WEIGHT="/home/kakeya/Desktop/tanimoto/data/weight/best_"
 readonly HISTORY="/home/kakeya/Desktop/tanimoto/data/history/history_"
 
 #readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
-readonly ALPHA=(0.40 0.60 0.80 1.00)
-
+#readonly ALPHA=(0.40 0.60 0.80 1.0)
+readonly ALPHA=(1.0 0.60)
 i=0
 for alpha in ${ALPHA[@]}
 do
-    for t in $(seq 0 4)
+    for t in $(seq 0 0)
     do 
 
         training=${TRAINING}${alpha}.txt
@@ -31,8 +31,9 @@ do
         #echo $model 
         echo $histories
         echo $alpha
+        echo "GPU ID : $1"
 
-        python3 buildUnet3chAugmentation.py ${training} ${model} -t ${validation} --bestfile ${weight} --history ${histories} -b 15  -e 40 -g $1
+        python3 buildUnet3chAugmentation.py ${training} ${weight} -t ${validation} --history ${histories} -b 15  -e 40 -g $1
         #python3 mail.py $histories
         
         else
