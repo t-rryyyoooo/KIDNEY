@@ -46,7 +46,7 @@ def main(args):
         
     HIST = HIST / HIST.sum()
 
-    HIST = HIST * args.alpha + (1 - args.alpha) / 2048
+    #HIST = HIST * args.alpha + (1 - args.alpha) / 2048
 
 
     if np.isnan(HIST).any():
