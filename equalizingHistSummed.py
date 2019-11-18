@@ -40,7 +40,8 @@ def write_file(file_name, text):
 def main(args):
     
     print('Loading npy file...')
-    HIST = np.load(args.npyFile)
+    npyFile = os.path.expanduser(args.npyFile)
+    HIST = np.load(npyFile)
     print('Loading it has done. ')
     aHIST = HIST * args.alpha + (1 - args.alpha) / 2048
 
@@ -59,8 +60,9 @@ def main(args):
             continue
         
         #Make CT and segmentation path
-        pI = Path(args.slicePath) / ('image/case_00' + sx)
-        pL = Path(args.slicePath) / ('label/case_00' + sx)
+        slicePath = os.path.expanduser(args.slicePath)
+        pI = Path(slicePath) / ('image/case_00' + sx)
+        pL = Path(slicePath) / ('label/case_00' + sx)
         
         if not pI.exists():
             print('File does not exist. ')
@@ -74,17 +76,21 @@ def main(args):
 
         for i,l in zip(sorted(pI.iterdir()), sorted(pL.iterdir())):
             #savePath
-            OPI = Path(args.savePath) / "image" / ('case_00' + sx) / i.name
-            OPL = Path(args.savePath) / "label" / ('case_00' + sx) / l.name
-            OPT = Path(args.savePath) / "path" / ("case_00" + sx + ".txt")
-            
+            savePath = os.path.expanduser(args.savePath)
+            OPI = Path(savePath) / "image" / ('case_00' + sx) / i.name
+            OPL = Path(savePath) / "label" / ('case_00' + sx) / l.name
+            OPT = Path(savePath) / "path" / ("case_00" + sx + ".txt")
+
             #Make parent path
             if not OPI.parent.exists():
                 createParentPath(str(OPI))
             
             if not OPL.parent.exists():
                 createParentPath(str(OPL))
-                                
+
+            if not OPT.parent.exists():
+                createParentPath(str(OPT))
+                                                                
             #print(str(OPL) + "\t" + str(OPI))
             
             ctImg = sitk.ReadImage(str(i))
