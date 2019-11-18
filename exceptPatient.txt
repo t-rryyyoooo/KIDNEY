@@ -323,7 +323,3 @@ case_00005
 case_00151
 case_00165
 case_00194
-case_00005
-case_00151
-case_00165
-case_00194

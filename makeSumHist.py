@@ -40,7 +40,7 @@ def main(args):
             imgArray = sitk.GetArrayFromImage(img)
             imgArray = imgArray + 1024
             imgArray = np.clip(imgArray, 0, 2048)
-            hist, bins = np.histogram(imgArray.ravel(), ctRange, [0, ctRange], density=True)
+            hist, _ = np.histogram(imgArray.ravel(), ctRange, [0, ctRange], density=True)
             HIST += hist
         print('case_00' + sx + 'done. ')
         
@@ -56,7 +56,7 @@ def main(args):
         np.save(args.savePath, HIST)
         print('Successfully saved to ' + args.savePath)
 
-    print('Then, make CDF. ')
+
     
 
 
