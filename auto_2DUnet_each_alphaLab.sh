@@ -1,14 +1,13 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="/home/vmlab/Desktop/data/textList/training_"
-readonly VALIDATION="/home/vmlab/Desktop/data/textList/validation_"
-#readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
-readonly WEIGHT="/home/vmlab/Desktop/data/modelweight/best_"
-readonly HISTORY="/home/vmlab/Desktop/data/history/history_"
+readonly TRAINING="~/Desktop/data/textList/training_sum"
+readonly VALIDATION="~/Desktop/data/textList/validation_sum"
+readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
+readonly HISTORY="~/Desktop/data/history/history_sum"
 
 #readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
-readonly ALPHA=(0.00 0.20)
+readonly ALPHA=(1.0 0.80)
 
 for alpha in ${ALPHA[@]}
 do
