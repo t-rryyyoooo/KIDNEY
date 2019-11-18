@@ -511,10 +511,15 @@ def main(_):
     sess = tf.compat.v1.Session(config=config)
     tf.compat.v1.keras.backend.set_session(sess)
 
-    trainingdatalist = ReadSliceDataList3ch_1ch(args.trainingdatafile)
+    trainingdatafile = os.path.expanduser(args.trainingdatafile)
+
+    trainingdatalist = ReadSliceDataList3ch_1ch(trainingdatafile)
     testdatalist = None
     if args.testfile is not None:
-        testdatalist = ReadSliceDataList3ch_1ch(args.testfile)
+        testfile = os.path.expanduser(args.testfile)
+
+        testdatalist = ReadSliceDataList3ch_1ch(testfile)
+
         testdatalist = random.sample(testdatalist, int(len(testdatalist)*0.1))
 
     (imageshape, labelshape) = GetInputShapes(trainingdatalist[0])
@@ -544,13 +549,17 @@ def main(_):
         model.load_weights(args.weightfile)
         initial_epoch = args.initialepoch
 
+    logdir = os.path.expanduser(args.logdir)
     if args.latestfile is None:
-        latestfile = args.logdir + '/latestweights.hdf5'
+        
+        latestfile = logdir + '/latestweights.hdf5'
     else:
-        latestfile = args.latestfile
+        latestfile = os.path.expanduser(args.latestfile)
+
+        #latestfile = args.latestfile
         createParentPath(latestfile)
 
-    tb_cbk = tf.keras.callbacks.TensorBoard(log_dir=args.logdir)
+    tb_cbk = tf.keras.callbacks.TensorBoard(log_dir=logdir)
     latest_cbk = LatestWeightSaver(latestfile)
 
     def step_decay(epoch):
@@ -565,9 +574,13 @@ def main(_):
     #callbacks = [tb_cbk, latest_cbk, lr_decay]
     if testdatalist is not None:
         if args.bestfile is None:
-            bestfile = args.logdir + '/bestweights.hdf5'
+            logdir = os.path.expanduser(args.logdir)
+
+            bestfile = logdir + '/bestweights.hdf5'
         else:
-            bestfile = args.bestfile
+            bestfile = os.path.expanduser(args.bestfile)
+
+            #bestfile = args.bestfile
             createParentPath(bestfile)
         chkp_cbk = tf.keras.callbacks.ModelCheckpoint(filepath=bestfile, save_best_only = True, save_weights_only = False)
         callbacks.append(chkp_cbk)
@@ -623,7 +636,8 @@ def main(_):
     
     
     if args.history is not None:
-        history_file = open(args.history,"a")
+        historyy = os.path.expanduser(args.history)
+        history_file = open(historyy,"a")
         for x in range(epochs):
 
             print("{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}".format(cancer[x],val_cancer[x],kid[x],val_kid[x]),file = history_file)

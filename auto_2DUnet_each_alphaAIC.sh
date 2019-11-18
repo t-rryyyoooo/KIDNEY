@@ -2,7 +2,7 @@
 
 #Input
 readonly TRAINING="~/Desktop/data/textList/training_sum"
-readonly VALIDATION="~/Desktop/tanimoto/data/textList/validation_sum"
+readonly VALIDATION="~/Desktop/data/textList/validation_sum"
 readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
 readonly HISTORY="~/Desktop/data/history/history_sum"
 #readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
