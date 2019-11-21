@@ -14,25 +14,11 @@ def ParseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("labelfile", help="Labelfile")
     parser.add_argument("imagefile", help="imagefile")
-    parser.add_argument("-l", "--layers", help="Number of laywers", default=8, type=int)
+    parser.add_argument("-l", "--layers", help="Number of laywers", default=5, type=int)
     parser.add_argument("savelabelpath", help="savelabelpath")
     parser.add_argument("saveimagepath", help="saveimagepath")
     parser.add_argument("textfilepath", help="save textfile path")
-    parser.add_argument("--nobn", help="Do not use batch normalization layer", action='store_true')
-    parser.add_argument("--nodropout", help="Do not use dropout layer", action='store_true')
-    parser.add_argument("--noaugmentation", help="Do not use training data augmentation", action='store_true')
-    parser.add_argument("--magnification", help="Magnification coefficient for data augmentation", default=10, type=int)
-    parser.add_argument("--latestfile", help="The filename of the latest weights.")
-    parser.add_argument("--bestfile", help="The filename of the best weights.")
-    parser.add_argument("--weightinterval", help="The interval between checkpoint for weight saving.", type=int)
-    parser.add_argument("--weightfile", help="The filename of the trained weight parameters file for fine tuning or resuming.")
-    parser.add_argument("--premodel", help="The filename of the previously trained model")
-    parser.add_argument("--initialepoch", help="Epoch at which to start training for resuming a previous training", default=0, type=int)
-    #parser.add_argument("--idlist", help="The filename of ID list for splitting input datasets into training and validation datasets.")
-    #parser.add_argument("--split", help="Fraction of the training data to be used as validation data.", default=0.0, type=float)
-    parser.add_argument("--logdir", help="Log directory", default='log')
-    parser.add_argument("-g", "--gpuid", help="ID of GPU to be used for segmentation. [default=0]", default=0, type=int)
-    parser.add_argument("--history")
+    
 
     args = parser.parse_args()
     return args
@@ -146,7 +132,12 @@ def cut_image(imgArray, paddingSize=15, center=None, wh=None, angle=None):#paddi
         imgArray = np.array(imgArray,dtype=np.uint8)
 
         ## 輪郭抽出
-        img, contours, hierarchy = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        vcheck = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if len(vcheck)==3:
+            _, contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        else:
+            contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
         # 面積が最大の輪郭を選択する。
         cnt = max(contours, key=lambda x: cv2.contourArea(x))
@@ -160,7 +151,14 @@ def cut_image(imgArray, paddingSize=15, center=None, wh=None, angle=None):#paddi
         imgArray = np.array(imgArray,dtype=np.uint8)
 
         ## 輪郭抽出
-        img, contours, hierarchy = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        vcheck = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(vcheck)==3:
+            _, contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+
+        else:
+            contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
         # 面積が最大の輪郭を選択する。
         cnt = max(contours, key=lambda x: cv2.contourArea(x))
@@ -169,6 +167,7 @@ def cut_image(imgArray, paddingSize=15, center=None, wh=None, angle=None):#paddi
         # 外接矩形を取得する。
 
         center, _, angle = cv2.minAreaRect(cnt)
+        
     
     
 
@@ -228,7 +227,13 @@ def caluculate_area(imgArray):
     imgArray = np.array(imgArray,dtype=np.uint8)
 
     ## 輪郭抽出
-    img, contours, hierarchy = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+   
+    vvcheck = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if len(vvcheck)==3:
+        _, contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    
+
+    else:
+        contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if not contours:
         return 0
@@ -275,11 +280,16 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
 
     return resampled
 
-def save_image_256(imageArray, image, savePath):
+def save_image_256(imageArray, image, savePath, is_lab=False):
     LF = sitk.GetImageFromArray(imageArray)
-    LF = Resampling(LF,256,LF.GetSize())
-    LF.SetOrigin(image.GetOrigin())
+    if is_lab:
+        LF = Resampling(LF,256,LF.GetSize(), is_label=True)
+    else:
+        LF = Resampling(LF,256,LF.GetSize())
+
+    #LF.SetOrigin(image.GetOrigin())
     #LF.SetSpacing(image.GetSpacing())
+    #LF.Direction(image.GetDirection())
     sitk.WriteImage(LF, savePath, True)
 
 def main(args):
@@ -361,100 +371,48 @@ def main(args):
 
 
         #############################################################################################
-        #print("Separated size: ",cutKidFragLabel[i].shape)
         
         #axial方向について、３D画像として切り取る
         cutKidFragLabel[i], cutKidFragImage[i], cutIndex, snum = cut3D(cutKidFragLabel[i],cutKidFragImage[i],"axial")
         
         print("cutted size_"+str(i)+": ",cutKidFragLabel[i].shape)
 
-        
-        #save_image(cutKidFragLabel[i][:,:,x], label,  "./slice/label_"+str(i)+"_"+str(x).zfill(2)+".mha")
-        #save_image(cutKidFragImage[i][:,:,x], image,  "./slice/image_"+str(i)+"_"+str(x).zfill(2)+".mha")
-        
         ##最大サイズの腎臓を持つスライスの特定
         mArea = []
         for ckfl in range(len(cutKidFragLabel[i][0,0,:])):
             mArea.append(caluculate_area(cutKidFragLabel[i][:,:,ckfl]))
             maxArea = np.argmax(mArea)
-        #print("max index: ", maxArea)
-        #print("\n")
         
         #最大サイズのスライスの幅、高さの計算
-        #print("Max size data")
         roi, maxCenter, maxwh, maxAngle = cut_image(cutKidFragLabel[i][:,:,maxArea])
         roi, center, wh, angle = cut_image(cutKidFragImage[i][:,:,maxArea], center=maxCenter, wh=maxwh, angle=maxAngle)
         
         rmaxwh = list(maxwh)
         rmaxwh = rmaxwh[::-1]
         rmaxwh = tuple(rmaxwh)#調整
-        #print("maxwh: ",maxwh)
-        #print("rmaxwh: ",rmaxwh)
-        #print("Each data")
 
-        snumber = -1
         layers = args.layers#層の数 
         noKidImg = 0
-        check = False
 
         for ckfl in range(len(cutKidFragLabel[i][0,0,:])):
             a = caluculate_area(cutKidFragLabel[i][:,:,ckfl])
-            #print(a)
-            #print(maxCenter, maxwh, maxAngle)
+            
             ##腎臓のない領域の画像保存
             if a==0:
-                #print(ckfl,"(st,nd,rd,th) slice")
                 x0 = maxCenter[1] - int((maxwh[1]+15)/2)
                 x1 = maxCenter[1] + int((maxwh[1]+15)/2)
                 y0 = maxCenter[0] - int((maxwh[0]+15)/2)
                 y1 = maxCenter[0] + int((maxwh[0]+15)/2)
-                #print(x0,x1,y0,y1)
                 if x0<0:
                     x0 = 0
                 if y0<0:
                     y0 = 0
-                #print(x0,x1,y0,y1)
 
                 roi_label = cutKidFragLabel[i][x0 :x1, y0 :y1, ckfl]
                 roi_image = cutKidFragImage[i][x0 :x1, y0 :y1, ckfl]
 
-                if not check:
-                    OPL = os.path.join(args.savelabelpath,str(0))
-                    OPL = os.path.join(OPL,"label{}_{:02d}.mha".format(i,ckfl))
-                    OPI = os.path.join(args.saveimagepath,str(0))
-                    OPI = os.path.join(OPI,"image{}_{:02d}.mha".format(i,ckfl))
-                    
-                    save_image_256(roi_label, label, OPL)
-                    save_image_256(roi_image, image, OPI)
-                    path = os.path.join(args.textfilepath,str(0)+".txt")
-                    write_file(path, OPL + "\t" + OPI)
-                    
-                    noKidImg += 1
-                    
-                    
-                else:
-                    
-                    OPL = os.path.join(args.savelabelpath,str(layers-1))
-                    OPL = os.path.join(OPL,"label{}_{:02d}.mha".format(i,ckfl))
-                    OPI = os.path.join(args.saveimagepath,str(layers-1))
-                    OPI = os.path.join(OPI,"image{}_{:02d}.mha".format(i,ckfl))
-                    
-                    save_image_256(roi_label, label, OPL)
-                    save_image_256(roi_image, image, OPI)
-                    path = os.path.join(args.textfilepath,str(layers-1)+".txt")
-                    write_file(path,OPL + "\t" + OPI)
-
-
-
-                #print("Original shape: ", cutKidFragLabel[i][:,:,ckfl].shape)
-                #print("ROI_shape: ", roi_label[ckfl].shape)
-                #print("\n")
-                
             ##腎臓領域ありの時
             else:
-                check = True
-                snum = int((len(cutKidFragLabel[i][0,0,:])-2*noKidImg)/(layers-1))
-                #print(ckfl,"(st,nd,rd,th) slice")
                 roi, center, wh, angle = cut_image(cutKidFragLabel[i][:,:,ckfl])
                 if (maxwh[0]>maxwh[1])==(wh[0]>wh[1]):
                     roi, center, wh, angle = cut_image(cutKidFragLabel[i][:,:,ckfl],wh=maxwh)##中心,角度取得
@@ -468,26 +426,16 @@ def main(args):
                 roi, center, wh, angle = cut_image(cutKidFragImage[i][:,:,ckfl], center=center, wh=wh, angle=angle)
                 roi_image = roi
                 
-                
-                ######2D画像保存#######  
-                if (ckfl-noKidImg)%snum==0 and snumber<(layers-1):
-                    snumber += 1
-                
-                
-                OPL = os.path.join(args.savelabelpath,str(snumber))
-                OPL = os.path.join(OPL,"label{}_{:02d}.mha".format(i,ckfl))
-                OPI = os.path.join(args.saveimagepath,str(snumber))
-                OPI = os.path.join(OPI,"image{}_{:02d}.mha".format(i,ckfl))
-                
-                #print(roi_label.shape)
-                #print(label.GetSpacing())
-                save_image_256(roi_label, label, OPL)
-                save_image_256(roi_image, image, OPI)
-                path = os.path.join(args.textfilepath,str(snumber)+".txt")
-                write_file(path,OPL + "\t" + OPI)
+            
+            OPL = os.path.join(args.savelabelpath,"label{}_{:02d}.mha".format(i,ckfl))
+            OPI = os.path.join(args.saveimagepath,"image{}_{:02d}.mha".format(i,ckfl))
+            
+            save_image_256(roi_label, label, OPL,is_lab=True)
+            save_image_256(roi_image, image, OPI)
+            path = args.textfilepath
+            write_file(path, OPL + "\t" + OPI)
         
-        print("The number of images without kidney: ", noKidImg)            
-        print("The number of images with kidney per layer: ",snum)   
+          
     ##分けられているかどうかの確認
     if check1 == check2:
         print("Succeeded in cutting.")

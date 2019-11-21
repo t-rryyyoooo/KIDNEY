@@ -38,7 +38,7 @@ def main(args):
     wholeDICE=[]
     kidneyDICE = []
     cancerDICE = []
-    for i, x in enumerate(testing):
+    for x in testing:
         
         trueLabel = os.path.expanduser(args.trueLabel) + x + '/segmentation.nii.gz'
         resultLabel = os.path.expanduser(args.resultLabel) + x + '/label.mha'

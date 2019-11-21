@@ -409,7 +409,7 @@ def main(args):
     if len(kidIndex) != 2:
         print("The patient has horse shoe kidney.")
         print(args.savelabelpath.rsplit(os.sep)[-1]+" failed.")
-        write_file("exceptPatient.txt", args.savelabelpath.rsplit(os.sep)[-1])
+        #write_file("exceptPatient.txt", args.savelabelpath.rsplit(os.sep)[-1])
         sys.exit()
 
 

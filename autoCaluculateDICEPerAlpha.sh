@@ -7,15 +7,17 @@ readonly ALPHA=(0.0 0.20)
 
 for a in ${ALPHA[@]}
 do
+    for i in $(seq 0 4)
+    do 
     
-    save=${SAVE}${a}
-    
-    echo ${SLICE}
-    echo ${NPY}
-    echo ${save}
+        result="${RESULT}${a}/segmentation/$i/case_00"
+        
+        echo ${TRUE}
+        echo ${result}
+        echo "Alpha: $a"
 
-    python3 --version
-    python3 equalizingHistSummed.py ${SLICE} ${NPY} ${save} $a
+        python3 --version
+        python3 caluculateDICE.py ${TRUE} ${result} $a
 
   
 
