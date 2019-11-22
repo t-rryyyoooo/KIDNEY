@@ -727,9 +727,9 @@ def main(_):
     LF.SetSpacing(label.GetSpacing())
     LF.SetDirection(label.GetDirection())
     
-    print('saving segmented label to {}...'.format(args.savepath), end='', flush=True)
+    print('saving segmented label to {}...'.format(savepath), end='', flush=True)
     
-    sitk.WriteImage(LF, args.savepath, True)
+    sitk.WriteImage(LF, savepath, True)
         
         #print("The number of images without kidney: ", noKidImg)            
         #print("The number of images with kidney per layer: ",snum)
