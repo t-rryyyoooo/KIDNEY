@@ -10,7 +10,6 @@ z
 *.yml
 *.hdf5
 testingList/
-result/
 weightFolder/
 .DS_Store
 data/
