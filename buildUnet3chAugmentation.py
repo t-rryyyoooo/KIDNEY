@@ -492,7 +492,7 @@ def penalty_categorical(y_true,y_pred):
        + (1 - k_dice) + (1 - c_dice)
 
 
-def caluculateTime( start, end):
+def caluculateTime(start, end):
     tt = end-start
     hour = int(tt/3600)
     mini = int((tt-hour*3600)/60)
@@ -500,8 +500,6 @@ def caluculateTime( start, end):
     print("time: {}:{:2d}:{:2d}".format(hour, mini, sec))
 
 def main(_):
-    t1 = time.time()
-
     config = tf.compat.v1.ConfigProto(
     
     #allow_soft_placement=True, log_device_placement=True
@@ -644,17 +642,15 @@ def main(_):
         print("\n",file=history_file)
         history_file.close()
     
-    t2 = time.time()
-    caluculateTime(t1, t2)
-
-   
-
-    
 
 if __name__ == '__main__':
+    t1 = time.time()
+
     args = ParseArgs()
     
-
     tf.compat.v1.app.run(main=main, argv=[sys.argv[0]])
+
+    t2 = time.time()
+    caluculateTime(t1, t2)
 
     
