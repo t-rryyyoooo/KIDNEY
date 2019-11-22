@@ -438,22 +438,26 @@ def main(_):
     sess = tf.compat.v1.Session(config=config)
     tf.compat.v1.keras.backend.set_session(sess)
 
+    modelweightfile = os.path.expanduser(args.modelweightfile)
+
     with tf.device('/device:GPU:{}'.format(args.gpuid)):
-        print('loading U-net model {}...'.format(args.modelweightfile), end='', flush=True)
+        print('loading U-net model {}...'.format(modelweightfile), end='', flush=True)
         # with open(args.modelfile) as f:
         #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
         # model.load_weights(args.modelweightfile)
-        model = tf.compat.v1.keras.models.load_model(args.modelweightfile,
+        model = tf.compat.v1.keras.models.load_model(modelweightfile,
          custom_objects={'penalty_categorical' : penalty_categorical, 'kidney_dice':kidney_dice, 'cancer_dice':cancer_dice})
 
         print('done')
 
-    createParentPath(args.savepath)
+    savepath = os.path.expanduser(args.savepath)
+    createParentPath(savepath)
 
-
+    labelfile = os.path.expanduser(args.labelfile)
+    imagefile = os.path.expanduser(args.imagefile)
     ## Read image
-    label = sitk.ReadImage(args.labelfile)
-    image = sitk.ReadImage(args.imagefile)
+    label = sitk.ReadImage(labelfile)
+    image = sitk.ReadImage(imagefile)
 
     labelArray = sitk.GetArrayFromImage(label)
     imageArray = sitk.GetArrayFromImage(image)
