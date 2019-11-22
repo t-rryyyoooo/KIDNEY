@@ -2,12 +2,13 @@
 
 #Input
 readonly TRUE="~/Desktop/data/kits19/case_00"
-readonly RESULT="~/Desktop/data/inverseTest/case_00"
-readonly ALPHA=(0.0 0.20)
+readonly RESULT="~/Desktop/data/slice/summed_hist_"
+#readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
+readonly ALPHA=(0.0)
 
 for a in ${ALPHA[@]}
 do
-    for i in $(seq 0 4)
+    for i in $(seq 0 0)
     do 
     
         result="${RESULT}${a}/segmentation/$i/case_00"
@@ -17,7 +18,7 @@ do
         echo "Alpha: $a"
 
         python3 --version
-        python3 caluculateDICE.py ${TRUE} ${result} $a
+        python3 caluculateDICE.py ${TRUE} ${result} $a >> "~/Desktop/KIDNEY/result/summed_hist_$a_$i.txt"
 
   
 
