@@ -6,12 +6,12 @@ readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="~/Desktop/data/slice/summed_hist_"
 #readonly MODEL="/home/vmlab/Desktop/data/model/model_"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum_"
+readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
 
 
 readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
 
-readonly ALPHA=(0.0 0.20 0.40 0.60 0.80)
+readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 i=0
 
 for alpha in ${ALPHA[@]}
