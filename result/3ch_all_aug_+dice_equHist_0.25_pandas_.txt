@@ -1,0 +1,143 @@
+case _00173<br>
+whole_dice: 0.9678168465288058<br>
+kidney dice: 0.9736521241707177<br>
+cancer dice: 0.6852097130242826<br>
+
+case _00002<br>
+whole_dice: 0.908722271192006<br>
+kidney dice: 0.9407600745533512<br>
+cancer dice: 0.5673144810672216<br>
+
+case _00068<br>
+whole_dice: 0.9131541453186931<br>
+kidney dice: 0.9435252335828203<br>
+cancer dice: 0.5483283021017258<br>
+
+case _00133<br>
+whole_dice: 0.9276767377749819<br>
+kidney dice: 0.9501761575173034<br>
+cancer dice: 0.8038504512247528<br>
+
+case _00155<br>
+whole_dice: 0.9285037890494616<br>
+kidney dice: 0.9550553989885342<br>
+cancer dice: 0.28007542426147075<br>
+
+case _00114<br>
+whole_dice: 0.9421150552199795<br>
+kidney dice: 0.8928276303491847<br>
+cancer dice: 0.9627687327277799<br>
+
+case _00090<br>
+whole_dice: 0.9177173019512829<br>
+kidney dice: 0.9319120003885193<br>
+cancer dice: 0.8825035390500287<br>
+
+case _00105<br>
+whole_dice: 0.9384900763320456<br>
+kidney dice: 0.9554041724601308<br>
+cancer dice: 0.8336224969276368<br>
+
+case _00112<br>
+whole_dice: 0.9406061509432044<br>
+kidney dice: 0.9501123704998508<br>
+cancer dice: 0.8927351912814117<br>
+
+case _00175<br>
+whole_dice: 0.9635633501071197<br>
+kidney dice: 0.9706004816916357<br>
+cancer dice: 0.6722433460076046<br>
+
+case _00183<br>
+whole_dice: 0.9300319546403751<br>
+kidney dice: 0.9511055206149546<br>
+cancer dice: 0.6837618005422533<br>
+
+case _00208<br>
+whole_dice: 0.9357705722183164<br>
+kidney dice: 0.9569355356185204<br>
+cancer dice: 0.0<br>
+
+case _00029<br>
+whole_dice: 0.9370771672795749<br>
+kidney dice: 0.9472939699705499<br>
+cancer dice: 0.8915110082359907<br>
+
+case _00065<br>
+whole_dice: 0.9641504256691504<br>
+kidney dice: 0.9699922964652141<br>
+cancer dice: 0.49776753564741466<br>
+
+case _00157<br>
+whole_dice: 0.9649827085032802<br>
+kidney dice: 0.9717192508195388<br>
+cancer dice: 0.9344124608689013<br>
+
+case _00162<br>
+whole_dice: 0.9390109973917421<br>
+kidney dice: 0.9548806922509934<br>
+cancer dice: 0.8286260352516458<br>
+
+case _00141<br>
+whole_dice: 0.9827233927059421<br>
+kidney dice: 0.98476758582313<br>
+cancer dice: 0.70625<br>
+
+case _00062<br>
+whole_dice: 0.9775005323797006<br>
+kidney dice: 0.9826279134552883<br>
+cancer dice: 0.5374561683136755<br>
+
+case _00031<br>
+whole_dice: 0.9518597609124055<br>
+kidney dice: 0.9609238769138668<br>
+cancer dice: 0.29472621751198586<br>
+
+case _00156<br>
+whole_dice: 0.9697192911846118<br>
+kidney dice: 0.9769833637572917<br>
+cancer dice: 0.3135078897173574<br>
+
+case _00189<br>
+whole_dice: 0.8820195686995156<br>
+kidney dice: 0.8939697830090879<br>
+cancer dice: 0.8639512210886918<br>
+
+case _00135<br>
+whole_dice: 0.9323608968638136<br>
+kidney dice: 0.9129892855746294<br>
+cancer dice: 0.9454402043517146<br>
+
+case _00020<br>
+whole_dice: 0.9679995385473213<br>
+kidney dice: 0.971341593011548<br>
+cancer dice: 0.28820960698689957<br>
+
+case _00077<br>
+whole_dice: 0.9726157697121401<br>
+kidney dice: 0.97495967769928<br>
+cancer dice: 0.8339947995073217<br>
+
+case _00000<br>
+whole_dice: 0.9768561966837123<br>
+kidney dice: 0.9833686048608278<br>
+cancer dice: 0.503020887277749<br>
+
+case _00009<br>
+whole_dice: 0.9736078438106358<br>
+kidney dice: 0.977222110931737<br>
+cancer dice: 0.8505516549648947<br>
+
+case _00198<br>
+whole_dice: 0.9610137715342215<br>
+kidney dice: 0.9686239032099841<br>
+cancer dice: 0.14134773420990843<br>
+
+case _00036<br>
+whole_dice: 0.9007456703126946<br>
+kidney dice: 0.9292744237569767<br>
+cancer dice: 0.7340082173675692<br>
+
+average whole: 0.9453004208380975<br>
+average kidney: 0.9547501797123381<br>
+average cancer: 0.6420426828399245<br>
