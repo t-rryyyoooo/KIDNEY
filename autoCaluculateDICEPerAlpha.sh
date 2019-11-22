@@ -18,7 +18,7 @@ do
         echo "Alpha: $a"
 
         python3 --version
-        python3 caluculateDICE.py ${TRUE} ${result} $a >> "~/Desktop/KIDNEY/result/summed_hist_$a_$i.txt"
+        python3 caluculateDICE.py ${TRUE} ${result} $a >> "~/Desktop/KIDNEY/result/summed_$a_$i.txt"
 
   
 
