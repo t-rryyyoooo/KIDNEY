@@ -2,7 +2,7 @@
 
 #Input
 readonly TRUE="~/Desktop/data/kits19/case_00"
-readonly RESULT="~/Desktop/data/slice/summed_hist_0.0/label/case_00"
+readonly RESULT="~/Desktop/data/inverseTest/case_00"
 readonly ALPHA=(0.0 0.20)
 
 for a in ${ALPHA[@]}

@@ -431,13 +431,15 @@ def inverse_image(roi, cutKidFragLabel, wh, center, angle,labelArray, i):
     return iImg
 
 def main(args):
+    savepath = os.path.expanduser(args.savepath)
+    if not os.path.exists(savepath):
+        os.makedirs(savepath)
 
-    createParentPath(args.savepath)
-
-
+    labelfile = os.path.expanduser(args.labelfile)
+    imagefile = os.path.expanduser(args.imagefile)
     ## Read image
-    label = sitk.ReadImage(args.labelfile)
-    image = sitk.ReadImage(args.imagefile)
+    label = sitk.ReadImage(labelfile)
+    image = sitk.ReadImage(imagefile)
 
     labelArray = sitk.GetArrayFromImage(label)
     imageArray = sitk.GetArrayFromImage(image)
@@ -668,7 +670,7 @@ def main(args):
     for i in range(len(invDic)):
         scheck = False
         for l in range(len(invDic[i])):
-            save_image_256(invDic[i][l]["roi_lab"], label,os.path.join(args.savepath, "result{}_{:02d}.mha".format(i,l)), is_lab=True)
+            #save_image_256(invDic[i][l]["roi_lab"], label,os.path.join(args.savepath, "result{}_{:02d}.mha".format(i,l)), is_lab=True)
 
             iImg = inverse_image(invDic[i][l]["roi_lab"], 
                 invDic[i][l]["cutKidFragLabel"], 
@@ -708,9 +710,9 @@ def main(args):
     LF.SetSpacing(label.GetSpacing())
     LF.SetDirection(label.GetDirection())
     
-    print('saving segmented label to {}...'.format(args.savepath), end='', flush=True)
+    print('saving segmented label to {}...'.format(savepath), end='', flush=True)
     
-    sitk.WriteImage(LF, args.savepath + "/label.mha", True)
+    sitk.WriteImage(LF, savepath + "/label.mha", True)
         
         #print("The number of images without kidney: ", noKidImg)            
         #print("The number of images with kidney per layer: ",snum)

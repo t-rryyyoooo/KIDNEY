@@ -17,3 +17,5 @@ do
     savePath="${SAVE}case_00$i"
 
     python3 inverseTest.py $labPath $ctPath $savePath 1
+
+done

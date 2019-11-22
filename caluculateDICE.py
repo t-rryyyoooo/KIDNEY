@@ -61,6 +61,10 @@ def main(args):
 
         kidneyDICE.append(DICE(trueKid,resultKid))
         cancerDICE.append(DICE(trueCan,resultCan))
+        print('case_00' + x)
+        print("Average whole: {}  ".format(DICE(trueArray,resultArray)))
+        print("Average kidney: {}  ".format(DICE(trueKid,resultKid)))
+        print("Average cancer: {}  ".format(DICE(trueCan,resultCan)))
 
     print("Average whole: {}  ".format(caluculateAVG(wholeDICE)))
     print("Average kidney: {}  ".format(caluculateAVG(kidneyDICE)))
