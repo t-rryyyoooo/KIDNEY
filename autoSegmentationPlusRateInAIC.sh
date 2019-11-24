@@ -7,7 +7,7 @@ readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="~/Desktop/data/slice/summed_hist_"
 #readonly MODEL="/home/vmlab/Desktop/data/model/model_"
 readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
-
+readonly NPY="~/Desktop/data/orgHist.npy"
 
 readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
 
@@ -37,7 +37,7 @@ do
             echo $alpha
             echo "GPU ID : $1"
 
-            python3 segmentationUnet3chAtOnce.py $label $ct $model $weight $save $alpha -g $1
+            python3 segmentationUnet3chAtOnceSummedHist.py $label $ct $model $weight $save $NPY $alpha -g $1
 
             else
             echo $alpha skipped

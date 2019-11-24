@@ -16,7 +16,6 @@ def ParseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument('directoryPath', help='/home/vmlab/Desktop/data/slice/hist_1.0/image/case_00')
     parser.add_argument('savePath')
-    parser.add_argument('alpha')
 
     args = parser.parse_args()
 
