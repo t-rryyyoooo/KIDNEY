@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="/home/kakeya/Desktop/tanimoto/data/textList/training_"
-readonly VALIDATION="/home/kakeya/Desktop/tanimoto/data/textList/validation_"
-readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
-readonly WEIGHT="/home/kakeya/Desktop/tanimoto/data/weight/best_"
-readonly HISTORY="/home/kakeya/Desktop/tanimoto/data/history/history_"
+readonly TRAINING="$HOME/Desktop/tanimoto/data/textList/training_"
+readonly VALIDATION="$HOME/Desktop/tanimoto/data/textList/validation_"
+readonly MODEL="$HOME/Desktop/tanimoto/data/model/model_"
+readonly WEIGHT="$HOME/Desktop/tanimoto/data/weight/best_"
+readonly HISTORY="$HOME/Desktop/tanimoto/data/history/history_"
 
 #readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
 readonly ALPHA=(1.0 0.95 0.90 0.85 0.80 0.75 0.70 0.65 0.60 0.55)
