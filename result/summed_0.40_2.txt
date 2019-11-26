@@ -1,0 +1,116 @@
+case_00173
+Average whole: 0.9660572654598338  
+Average kidney: 0.9726637028591395  
+Average cancer: 0.6935912021236253  
+case_00002
+Average whole: 0.9045095547908034  
+Average kidney: 0.9373249397792841  
+Average cancer: 0.5652913499819038  
+case_00068
+Average whole: 0.8862365956246708  
+Average kidney: 0.9287590409146653  
+Average cancer: 0.44183171439384383  
+case_00133
+Average whole: 0.9001741593968112  
+Average kidney: 0.9367531635677137  
+Average cancer: 0.6710687960687961  
+case_00155
+Average whole: 0.9729184154774753  
+Average kidney: 0.9777129860019234  
+Average cancer: 0.7118315322804101  
+case_00114
+Average whole: 0.9514217680655851  
+Average kidney: 0.9199607334982527  
+Average cancer: 0.9645540723315901  
+case_00090
+Average whole: 0.8969482581150239  
+Average kidney: 0.9183203221834348  
+Average cancer: 0.8437265974457061  
+case_00105
+Average whole: 0.9347866303342417  
+Average kidney: 0.9528250374851576  
+Average cancer: 0.8188888682642511  
+case_00112
+Average whole: 0.9380834501974851  
+Average kidney: 0.9535714935152839  
+Average cancer: 0.8639055544803561  
+case_00175
+Average whole: 0.960767173695309  
+Average kidney: 0.9698093003866306  
+Average cancer: 0.6164500817057038  
+case_00183
+Average whole: 0.92579815075522  
+Average kidney: 0.9485314996798531  
+Average cancer: 0.6405114589155954  
+case_00208
+Average whole: 0.9657806385193594  
+Average kidney: 0.9746206077696561  
+Average cancer: 0.0  
+case_00029
+Average whole: 0.9276960519518275  
+Average kidney: 0.939453468668574  
+Average cancer: 0.8759234100365119  
+case_00065
+Average whole: 0.9641731865967134  
+Average kidney: 0.9715066211863355  
+Average cancer: 0.5044075558099599  
+case_00157
+Average whole: 0.963914239309  
+Average kidney: 0.9715942785639093  
+Average cancer: 0.9289104429356612  
+case_00162
+Average whole: 0.9425791347979594  
+Average kidney: 0.9534284841342586  
+Average cancer: 0.8676275479435532  
+case_00141
+Average whole: 0.9832554539626064  
+Average kidney: 0.9849211709089215  
+Average cancer: 0.7739575713240673  
+case_00062
+Average whole: 0.975514618994877  
+Average kidney: 0.980483253964983  
+Average cancer: 0.5418574231523872  
+case_00031
+Average whole: 0.9088933554113772  
+Average kidney: 0.9382128830247416  
+Average cancer: 0.22329439647875401  
+case_00156
+Average whole: 0.9714560529403844  
+Average kidney: 0.9776736906086575  
+Average cancer: 0.3149477137584581  
+case_00189
+Average whole: 0.9036727627878123  
+Average kidney: 0.9092199913603666  
+Average cancer: 0.8966712339808173  
+case_00135
+Average whole: 0.9304816675779333  
+Average kidney: 0.9098135617342252  
+Average cancer: 0.9434519894838206  
+case_00020
+Average whole: 0.9696523465010564  
+Average kidney: 0.9733387891161418  
+Average cancer: 0.006715165081141578  
+case_00077
+Average whole: 0.9683578149711568  
+Average kidney: 0.9723197423152236  
+Average cancer: 0.7522123893805309  
+case_00000
+Average whole: 0.9760725897778186  
+Average kidney: 0.9821961663996772  
+Average cancer: 0.6715241280458671  
+case_00009
+Average whole: 0.9712432581225108  
+Average kidney: 0.9757992496028436  
+Average cancer: 0.807944221424044  
+case_00198
+Average whole: 0.9676810019148165  
+Average kidney: 0.9734450310841941  
+Average cancer: 0.0  
+case_00036
+Average whole: 0.93416343231982  
+Average kidney: 0.9525487061421353  
+Average cancer: 0.8127528658125421  
+Average whole: 0.9450817510131958  
+Average kidney: 0.9556002827305782  
+Average cancer: 0.634066045808568  
+

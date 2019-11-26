@@ -39,10 +39,9 @@ def main(args):
     kidneyDICE = []
     cancerDICE = []
     for x in testing:
-        
+
         trueLabel = os.path.expanduser(args.trueLabel) + x + '/segmentation.nii.gz'
         resultLabel = os.path.expanduser(args.resultLabel) + x + '/label.mha'
-
 
         true = sitk.ReadImage(trueLabel)
         result = sitk.ReadImage(resultLabel)

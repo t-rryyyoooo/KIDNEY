@@ -1,25 +1,28 @@
 #!/bin/bash
 
 #Input
-readonly TRUE="~/Desktop/data/kits19/case_00"
-readonly RESULT="~/Desktop/data/slice/summed_hist_"
-#readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
-readonly ALPHA=(0.0)
+readonly TRUE="$HOME/Desktop/data/kits19/case_00"
+readonly RESULT="$HOME/Desktop/data/slice/summed_hist_"
+readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
+readonly TEXT="$HOME/Desktop/KIDNEY/result/"
+readonly PREFIX="summed_"
+#readonly ALPHA=(0.0)
 
 for a in ${ALPHA[@]}
 do
-    for i in $(seq 0 0)
+    for i in $(seq 0 4)
     do 
     
-        result="${RESULT}${a}/segmentation/$i/case_00"
-        
+        results="${RESULT}${a}/segmentation/$i/case_00"
+        text="${TEXT}${PREFIX}${a}_${i}.txt"
+
         echo ${TRUE}
-        echo ${result}
+        echo ${results}
         echo "Alpha: $a"
+        echo $text
 
         python3 --version
-        python3 caluculateDICE.py ${TRUE} ${result} $a >> "~/Desktop/KIDNEY/result/summed_$a_$i.txt"
+        python3 caluculateDICE.py ${TRUE} ${results}> $text
 
-  
-
+    done
 done
