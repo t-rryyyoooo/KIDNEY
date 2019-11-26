@@ -459,7 +459,7 @@ def main(args):
                 createParentPath(str(OPT))
 
 
-            save_image_256(roi_label, label, str(OPL),is_lab=True)
+            save_image_256(roi_label, label, str(OPL), is_lab=True)
             save_image_256(roi_image, image, str(OPI))
             
             write_file(str(OPT), str(OPL) + "\t" + str(OPI))

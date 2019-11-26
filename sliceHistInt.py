@@ -12,19 +12,29 @@ args = None
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("labelfile", help="Labelfile")
-    parser.add_argument("imagefile", help="imagefile")
-    parser.add_argument("-l", "--layers", help="Number of laywers", default=5, type=int)
-    parser.add_argument("savelabelpath", help="savelabelpath")
-    parser.add_argument("saveimagepath", help="saveimagepath")
-    parser.add_argument("textfilepath", help="save textfile path")
-    
+
+    parser.add_argument("originalFilePath", help="$HOME/Desktop/data/kits19/case_00000")
+    parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0")
+
+    parser.add_argument("alpha", default=0.0, type=float)
 
     args = parser.parse_args()
     return args
 
+def createParentPath(filepath):
+    head, _ = os.path.split(filepath)
+    if len(head) != 0:
+        os.makedirs(head, exist_ok = True)
+
 
 def write_file(file_name, text):
+    if not os.path.exists(file_name):
+        createParentPath(file_name)
+        with open(file_name, 'x') as file:
+            file.write(text + "\n")
+
+        
+        
     with open(file_name, 'a') as file:
         file.write(text + "\n")
 
@@ -206,20 +216,7 @@ def cut_image(imgArray, paddingSize=15, center=None, wh=None, angle=None):#paddi
     if area==0:
         return roi, center, wh, angle
     
-    else:
-        ##情報出力
-        #print("Area: ",area)
-        #print("Center: ",center)
-        #print("Original width and height: ",wh)
-        #print("Angle: ",angle)
-        #print("Padding_size: ",paddingSize)
-        #print("Padded width and height: ", paddedwh)
-        #print("Original image shape: ",imgArray.shape)
-        #print("Rotated image shape: ",rotatedImg.shape)
-        #print("ROI image shape: ", roi.shape)
-        #print("\n")
-    
-        return roi, center, wh, angle
+    return roi, center, wh, angle
     
 def caluculate_area(imgArray):
     area = 0
@@ -245,7 +242,47 @@ def caluculate_area(imgArray):
     
     return area
 
-def Resampling(image, newsize, roisize, origin = None, is_label = False):
+
+def ResamplingWithMeta(image, newsize, roisize, meta ,origin = None, is_label = False):
+    #isize = image.GetSize()
+    #ivs = image.GetSpacing()
+    ivs = meta["Spacing"]
+
+    if image.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(image)
+        minval = minmax.GetMinimum()
+    else:
+        minval = None
+    
+    osize = (newsize, newsize )
+    
+
+    
+    ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
+    
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetSize(osize)
+    if origin is not None:
+        resampler.SetOutputOrigin(origin)
+    else:
+        #resampler.SetOutputOrigin(meta.GetOrigin())
+        resampler.SetOutputOrigin(meta["Origin"])
+
+    #resampler.SetOutputDirection(meta.GetDirection())
+    resampler.SetOutputDirection(meta["Direction"])
+    resampler.SetOutputSpacing(ovs)
+    if minval is not None:
+        resampler.SetDefaultPixelValue(minval)
+    if is_label:
+        resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+
+    resampled = resampler.Execute(image)
+
+    return resampled
+
+def Resampling(image, newsize, roisize ,origin = None, is_label = False):
     #isize = image.GetSize()
     ivs = image.GetSpacing()
     
@@ -280,8 +317,11 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
 
     return resampled
 
-def save_image_256(imageArray, image, savePath, is_lab=False):
+def save_image_256(imageArray, meta, savePath, is_lab=False):
     LF = sitk.GetImageFromArray(imageArray)
+    if not os.path.exists(savePath):
+        createParentPath(savePath)
+        
     if is_lab:
         LF = Resampling(LF,256,LF.GetSize(), is_label=True)
     else:
@@ -292,13 +332,61 @@ def save_image_256(imageArray, image, savePath, is_lab=False):
     #LF.Direction(image.GetDirection())
     sitk.WriteImage(LF, savePath, True)
 
+def makeCDF(imgArrayList, alpha = 0):#imgArrayList:int64
+    imgArrayList = [ x + 1024 for x in imgArrayList ]
+    
+    imgArrayList = [np.where(x<0, 0, x) for x in imgArrayList]
+    imgArrayList = [np.where(x>2048, 2048,x) for x in imgArrayList]
+    
+    ctRange = 2048 + 1
+    #uniformDistribution = np.array([ctRange]*ctRange)
+    
+    HIST = np.array([0.0]*ctRange)
+    for x in imgArrayList:
+        hist, _  = np.histogram(x.flatten(), ctRange, [0, 2048+1])
+        HIST += hist
+    
+    
+    print(HIST)
+    HIST /= sum(HIST)
+    HIST = HIST * (1 - alpha) + alpha / 2048
+    print(HIST)
+    cdf = HIST.cumsum()
+    cdf_m = np.ma.masked_equal(cdf,0)
+    temp = (cdf_m - cdf_m.min())/(cdf_m.max()-cdf_m.min())
+    cdf_m = 2048*temp
+    cdf = np.ma.filled(cdf_m,0).astype('int64')
+    
+    return cdf,imgArrayList
+
+def equalizingHistogram(imgArrayList, alpha):
+    cdf, imgArrayList = makeCDF(imgArrayList, alpha)
+    
+    equalizedImageArrayList = []
+    for imgAr in imgArrayList:
+        x = cdf[imgAr] - 1024
+        equalizedImageArrayList.append(x)
+    
+    return equalizedImageArrayList
+
 def main(args):
+    print(args.alpha)
+
+    labelFile = Path(args.originalFilePath) / 'segmentation.nii.gz'
+    imageFile = Path(args.originalFilePath) / 'imaging.nii.gz'
+
     ## Read image
-    label = sitk.ReadImage(args.labelfile)
-    image = sitk.ReadImage(args.imagefile)
+    label = sitk.ReadImage(str(labelFile))
+    image = sitk.ReadImage(str(imageFile))
 
     labelArray = sitk.GetArrayFromImage(label)
     imageArray = sitk.GetArrayFromImage(image)
+
+    meta = {}
+    meta["Spacing"] = label.GetSpacing()[1:3]
+    meta["Origin"] = label.GetOrigin()[1:3]
+    meta["Direction"] = label.GetDirection()[3:5] + label.GetDirection()[6:8]
+
 
     print("Whole size: ",labelArray.shape)
 
@@ -324,7 +412,7 @@ def main(args):
     if len(kidIndex) != 2:
         print("The patient has horse shoe kidney.")
         print(args.savelabelpath.rsplit(os.sep)[-1]+" failed.")
-        write_file("exceptPatient.txt", args.savelabelpath.rsplit(os.sep)[-1])
+        #write_file("exceptPatient.txt", args.savelabelpath.rsplit(os.sep)[-1])
         sys.exit()
 
 
@@ -373,8 +461,8 @@ def main(args):
         #############################################################################################
         
         #axial方向について、３D画像として切り取る
-        cutKidFragLabel[i], cutKidFragImage[i], cutIndex, snum = cut3D(cutKidFragLabel[i],cutKidFragImage[i],"axial")
-        
+        cutKidFragLabel[i], cutKidFragImage[i], _, _ = cut3D(cutKidFragLabel[i],cutKidFragImage[i],"axial")
+
         print("cutted size_"+str(i)+": ",cutKidFragLabel[i].shape)
 
         ##最大サイズの腎臓を持つスライスの特定
@@ -391,10 +479,12 @@ def main(args):
         rmaxwh = rmaxwh[::-1]
         rmaxwh = tuple(rmaxwh)#調整
 
-        layers = args.layers#層の数 
-        noKidImg = 0
-
+        imgArrayList = []
+        ctMax = -10**9
+        ctMin = 10**9
         for ckfl in range(len(cutKidFragLabel[i][0,0,:])):
+           
+
             a = caluculate_area(cutKidFragLabel[i][:,:,ckfl])
             
             ##腎臓のない領域の画像保存
@@ -427,23 +517,57 @@ def main(args):
                 roi_image = roi
                 
             
-            OPL = os.path.join(args.savelabelpath,"label{}_{:02d}.npy".format(i,ckfl))
-            OPI = os.path.join(args.saveimagepath,"image{}_{:02d}.npy".format(i,ckfl))
+            #ヒストグラム平坦化
+            roi_image = np.array(roi_image, dtype=np.int64)
+            if roi_image.max()>ctMax:
+                ctMax = roi_image.max()
             
-            #save_image_256(roi_label, label, OPL,is_lab=True)
-            #save_image_256(roi_image, image, OPI)
+            if roi_image.min()<ctMin:
+                ctMin = roi_image.min()
+            
+            imgArrayList.append(roi_image)
 
-            #Save as npy
-            np.save(OPL, roi_label)
-            np.save(OPI, roi_image)
-            path = args.textfilepath
-            write_file(path, OPL + "\t" + OPI)
+    
+
+
+            ##1枚1枚ヒストグラム平坦化    
+            #roi_image = np.array(roi_image, dtype=np.uint8)
+            #roi_image = cv2.equalizeHist(roi_image)
+
+            patientID = args.originalFilePath.split('/')[-1]
+            OPL = Path(args.savePath) / 'label' / patientID / "label{}_{:02d}.mha".format(i,ckfl)
+            OPI = Path(args.savePath) / 'image' / patientID / "image{}_{:02d}.mha".format(i,ckfl)
+            OPT = Path(args.savePath) / 'path' / (patientID + '.txt')
+
+            #Make parent path
+            if not OPI.parent.exists():
+                createParentPath(str(OPI))
+            
+            if not OPL.parent.exists():
+                createParentPath(str(OPL))
+
+            if not OPT.parent.exists():
+                createParentPath(str(OPT))
+
+
+            save_image_256(roi_label, label, str(OPL), is_lab=True)
+            #save_image_256(roi_image, image, OPI)
+            
+            write_file(str(OPT), str(OPL) + "\t" + str(OPI))
         
-          
+        
+        print(ctMax, ctMin)    
+        
+        equalizedImageArrayList = equalizingHistogram(imgArrayList, args.alpha)
+        for x ,equalizedImageArray in enumerate(equalizedImageArrayList):
+            OPI = Path(args.savePath) / 'image' / patientID / "image{}_{:02d}.mha".format(i,x)
+            
+            save_image_256(equalizedImageArray, image , str(OPI))
+
     ##分けられているかどうかの確認
     if check1 == check2:
         print("Succeeded in cutting.")
-        print(args.savelabelpath.rsplit(os.sep)[-1]+" done.\n")
+        print(args.originalFilePath.split('/')[-1]+" done.\n")
 
     else:
         print("Failed to cutting.")
