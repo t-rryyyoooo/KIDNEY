@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly NPY="$HOME/Desktop/data/orgHistFloat.npy"
+readonly NPY="$HOME/Desktop/KIDNEY/sumHistFloat.npy"
 readonly SLICE="$HOME/Desktop/data/slice/original"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_" 
@@ -19,7 +19,7 @@ do
     echo ${save}
 
     python3 --version
-    python3 equalizingHistSummed.py ${SLICE} ${NPY} ${save} $a
+    python3 equalizingHistSummedFloat.py ${SLICE} ${NPY} ${save} $a
 
   
 
