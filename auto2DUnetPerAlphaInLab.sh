@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="~/Desktop/data/textList/training_sum"
-readonly VALIDATION="~/Desktop/data/textList/validation_sum"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
-readonly HISTORY="~/Desktop/data/history/history_sum"
+readonly TRAINING="$HOME/Desktop/data/textList/training_sum_float_"
+readonly VALIDATION="$HOME/Desktop/data/textList/validation_sum_float_"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
+readonly HISTORY="$HOME/Desktop/data/history/history_sum_float_"
 
 #readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
-readonly ALPHA=(1.0 0.80)
+readonly ALPHA=(0.80 1.0)
 
 for alpha in ${ALPHA[@]}
 do

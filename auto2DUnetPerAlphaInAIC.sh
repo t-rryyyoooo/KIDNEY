@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="~/Desktop/data/textList/training_sum"
-readonly VALIDATION="~/Desktop/data/textList/validation_sum"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
-readonly HISTORY="~/Desktop/data/history/history_sum"
+readonly TRAINING="~/Desktop/data/textList/training_sum_float_"
+readonly VALIDATION="~/Desktop/data/textList/validation_sum_float_"
+readonly WEIGHT="~/Desktop/data/modelweight/best_sum_float_"
+readonly HISTORY="~/Desktop/data/history/history_sum_float_"
 #readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
 
 
 #readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
-readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
+readonly ALPHA=(0.0 0.20 0.40 0.60)
 i=0
 for alpha in ${ALPHA[@]}
 do
