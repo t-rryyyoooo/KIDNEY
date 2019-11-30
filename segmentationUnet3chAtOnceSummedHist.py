@@ -405,6 +405,38 @@ def equalizingHistogramSummed(imageArrayList, npy, alpha):
     
     return equImgArrayList
 
+def equalizingHistogramSummedFloat(imageArrayList, npy, alpha, times=10**3, types="np.float32"):
+    #Make CDF
+    print('Loading npy file...')
+    npyFile = os.path.expanduser(npy)
+    HIST = np.load(npyFile)
+    print('Loading it has done. ')
+    aHIST = HIST * alpha + (1 - alpha) / (2048 * times)
+
+    cdf = aHIST.cumsum()
+    cdf_m = np.ma.masked_equal(cdf,0)
+    temp = (cdf_m - cdf_m.min())/(cdf_m.max()-cdf_m.min())
+    cdf_m = 2048 * times * temp
+    cdf = np.ma.filled(cdf_m,0).astype(types)
+    print('Making CDF has done.' )
+
+    #Equalize histogram
+    equImgArrayList = []
+    for imgArray in imageArrayList:
+        #Preprocessing
+        imgArray = imgArray + 1024
+        imgArray = np.clip(imgArray, 0, 2048)
+        imgArray = imgArray * times
+        imgArray = np.array(imgArray, dtype=np.int)
+        
+        #Equalize hisotgram
+        imgArray = cdf[imgArray]
+        imgArray = imgArray / times - 1024
+
+        equImgArrayList.append(imgArray)
+    
+    return equImgArrayList
+
 def save_image_256(imageArray, image, savePath, is_lab=False):
     LF = sitk.GetImageFromArray(imageArray)
     if is_lab:
@@ -642,7 +674,8 @@ def main(_):
             if roi_img.min()<ctMin:
                 ctMin = roi_img.min()
             
-            imgArrayList.append(roi_img)
+            #####Change!!!!!!
+            #imgArrayList.append(roi_img)
 
             ##ヒストグラム平坦化    
             # roi_img = np.array(roi_img, dtype=np.uint8)
@@ -660,7 +693,7 @@ def main(_):
             print("{}(st nd) kidney {}/{} cutted".format(i,len(invDic[i]),len(cutKidFragLabel[i][0,0,:])))
         
         #ヒストグラム均一化
-        equalizedImageArrayList = equalizingHistogramSummed(imgArrayList, args.npyfile, args.alpha)
+        equalizedImageArrayList = equalizingHistogramSummedFloat(imgArrayList, args.npyfile, args.alpha)
         
         llll = 0
         for equalizedImage, inv in zip(equalizedImageArrayList, invDic[i]):

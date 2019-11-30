@@ -1,19 +1,16 @@
 #!/bin/bash
 
 #Input
-readonly DATA="~/Desktop/data/kits19/data/case_00"
+readonly DATA="$HOME/Desktop/data/kits19/data/case_00"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
-readonly SAVE="~/Desktop/data/slice/hist_"
-#readonly MODEL="/home/vmlab/Desktop/data/model/model_"
-readonly WEIGHT="~/Desktop/data/modelweight/best_"
+readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
+readonly NPY="$HOME/Desktop/KIDNEY/sumHistFloat.npy"
 
+readonly NUMBERS=(000 002 009 020 029 031 036 062 065 068 077 090 105 112 114 133 135 141 155 156 157 162 173 175 183 189 198 208)
 
-readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
-
-readonly ALPHA=(0.00 0.20)
-A=0.95
-N=173
+readonly ALPHA=(0.80 1.0)
 
 for alpha in ${ALPHA[@]}
 do
@@ -24,17 +21,15 @@ do
 
 
             weight="${WEIGHT}${alpha}_${t}.hdf5"
-            #model='${MODEL}${alpha}_${t}.yml'
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
             ct=${DATA}${number}${CT}
             label=${DATA}${number}${LABEL}
       
             echo $weight
-            #echo $model 
             echo $save
             echo $alpha
 
-            python3 segmentationUnet3chAtOnce.py $label $ct $weight $save $alpha
+            python3 segmentationUnet3chAtOnceSummedHistFloat.py $label $ct $weight $save $NPY $alpha
 
         done
 

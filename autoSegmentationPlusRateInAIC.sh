@@ -1,17 +1,15 @@
 #!/bin/bash
 
 #Input
-readonly DATA="~/Desktop/data/kits19/case_00"
+readonly DATA="$HOME/Desktop/data/kits19/case_00"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
-readonly SAVE="~/Desktop/data/slice/summed_hist_"
-#readonly MODEL="/home/vmlab/Desktop/data/model/model_"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
-readonly NPY="~/Desktop/data/orgHist.npy"
+readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
+readonly NPY="$HOME/Desktop/KIDNEY/sumHistFloat.npy"
 
-readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
-
-readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
+readonly NUMBERS=(000 002 009 020 029 031 036 062 065 068 077 090 105 112 114 133 135 141 155 156 157 162 173 175 183 189 198 208)
+readonly ALPHA=(0.0 0.20 0.40 0.60)
 i=0
 
 for alpha in ${ALPHA[@]}
@@ -23,7 +21,6 @@ do
 
 
             weight="${WEIGHT}${alpha}_${t}.hdf5"
-            #model=${MODEL}${alpha}.yml
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
             ct=${DATA}${number}${CT}
             label=${DATA}${number}${LABEL}
@@ -32,12 +29,11 @@ do
             
             if [ $1 -eq $((i%2)) ]; then
             echo $weight
-            #echo $model 
             echo $save
             echo $alpha
             echo "GPU ID : $1"
 
-            python3 segmentationUnet3chAtOnceSummedHist.py $label $ct $model $weight $save $NPY $alpha -g $1
+            python3 segmentationUnet3chAtOnceSummedHistFloat.py $label $ct $weight $save $NPY $alpha -g $1
 
             else
             echo $alpha skipped

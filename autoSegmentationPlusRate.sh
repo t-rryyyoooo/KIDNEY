@@ -9,14 +9,10 @@ readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
 readonly WEIGHT="/home/kakeya/Desktop/tanimoto/data/weight/best_"
 
 
-readonly NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
+readonly NUMBERS=(000 002 009 020 029 031 036 062 065 068 077 090 105 112 114 133 135 141 155 156 157 162 173 175 183 189 198 208)
 
-#readonly ALPHA=(0.55 0.60 0.65 0.70 0.80 0.85 0.90 0.95 1.0)
-#readonly ALPHA=(1.0 0.95 0.90 0.85 0.80 0.75 0.70 0.65 0.60 0.55)
 readonly ALPHA=(0.00 0.20 0.40 )
-i=0
-A=0.95
-N=173
+
 for alpha in ${ALPHA[@]}
 do
     for number in ${NUMBERS[@]}
