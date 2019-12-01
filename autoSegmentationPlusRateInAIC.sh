@@ -1,10 +1,11 @@
 #!/bin/bash
 
 #Input
-readonly DATA="~/Desktop/data/kits19/case_00"
+readonly DATA="$HOME/Desktop/data/kits19/data/case_00"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
-readonly SAVE="~/Desktop/data/slice/summed_hist_"
+readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
+
 #readonly MODEL="/home/vmlab/Desktop/data/model/model_"
 readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
 readonly NPY="~/Desktop/data/orgHist.npy"
