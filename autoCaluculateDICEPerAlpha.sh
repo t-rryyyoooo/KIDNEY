@@ -2,10 +2,10 @@
 
 #Input
 readonly TRUE="$HOME/Desktop/data/kits19/case_00"
-readonly RESULT="$HOME/Desktop/data/slice/summed_hist_"
+readonly RESULT="$HOME/Desktop/data/slice/summed_hist_float_"
 readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 readonly TEXT="$HOME/Desktop/KIDNEY/result/"
-readonly PREFIX="summed_"
+readonly PREFIX="summed_float_"
 #readonly ALPHA=(0.0)
 
 for a in ${ALPHA[@]}
