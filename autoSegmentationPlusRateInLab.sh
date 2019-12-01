@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly DATA="$HOME/Desktop/data/kits19/data/case_00"
+readonly DATA="$HOME/Desktop/data/kits19/case_00"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
@@ -24,12 +24,13 @@ do
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
             ct=${DATA}${number}${CT}
             label=${DATA}${number}${LABEL}
-      
+
+
             echo $weight
             echo $save
             echo $alpha
 
-            python3 segmentationUnet3chAtOnceSummedHistFloat.py $label $ct $weight $save $NPY $alpha
+            python3 segmentationUnet3chAtOnceSummedHist.py $label $ct $weight $save $NPY $alpha
 
         done
 

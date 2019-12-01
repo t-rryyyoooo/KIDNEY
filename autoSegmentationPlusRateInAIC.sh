@@ -33,7 +33,7 @@ do
             echo $alpha
             echo "GPU ID : $1"
 
-            python3 segmentationUnet3chAtOnceSummedHistFloat.py $label $ct $weight $save $NPY $alpha -g $1
+            python3 segmentationUnet3chAtOnceSummedHist.py $label $ct $weight $save $NPY $alpha -g $1
 
             else
             echo $alpha skipped
