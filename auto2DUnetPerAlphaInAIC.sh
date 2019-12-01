@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="~/Desktop/data/textList/training_sum_float_"
-readonly VALIDATION="~/Desktop/data/textList/validation_sum_float_"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum_float_"
-readonly HISTORY="~/Desktop/data/history/history_sum_float_"
+readonly TRAINING="$HOME/Desktop/data/textList/training_sum_float_"
+readonly VALIDATION="$HOME/Desktop/data/textList/validation_sum_float_"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
+readonly HISTORY="$HOME/Desktop/data/history/history_sum_float_"
 #readonly MODEL="/home/kakeya/Desktop/tanimoto/data/model/model_"
 
 
