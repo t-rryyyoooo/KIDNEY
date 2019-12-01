@@ -405,7 +405,7 @@ def equalizingHistogramSummed(imageArrayList, npy, alpha):
     
     return equImgArrayList
 
-def equalizingHistogramSummedFloat(imageArrayList, npy, alpha, times=10**3, types="np.float32"):
+def equalizingHistogramSummedFloat(imageArrayList, npy, alpha, times=10**3, types="float32"):
     #Make CDF
     print('Loading npy file...')
     npyFile = os.path.expanduser(npy)
