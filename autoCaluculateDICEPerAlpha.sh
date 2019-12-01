@@ -3,11 +3,11 @@
 #Input
 readonly TRUE="$HOME/Desktop/data/kits19/case_00"
 readonly RESULT="$HOME/Desktop/data/slice/summed_hist_float_"
-readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
+#readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 readonly TEXT="$HOME/Desktop/KIDNEY/result/"
 readonly PREFIX="summed_float_"
 #readonly ALPHA=(0.0)
-
+ALPHA=($@)
 for a in ${ALPHA[@]}
 do
     for i in $(seq 0 4)
