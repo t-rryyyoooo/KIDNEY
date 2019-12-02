@@ -512,7 +512,7 @@ def main(_):
     savepath = os.path.expanduser(args.savepath)
     createParentPath(savepath)
 
-    labelfile = os.path.expanduser(args.labelfile)
+    labelfile = os.path.expanduser(args.labelfile) 
     imagefile = os.path.expanduser(args.imagefile)
     ## Read image
     label = sitk.ReadImage(labelfile)
@@ -664,9 +664,9 @@ def main(_):
                     
                 roi, center, wh, angle = cut_image(cutKidFragImage[i][:,:,ckfl], center=center, wh=wh, angle=angle)
                 roi_img = roi
-            
-
-            roi_img = np.array(roi_img, dtype=np.int64)
+        
+            ###############Change!!!!!!!!!!!!!!!!!!!!!!!!! Do not change img from float to int
+            #roi_img = np.array(roi_img, dtype=np.int64)
 
             if roi_img.max()>ctMax:
                 ctMax = roi_img.max()
@@ -674,12 +674,7 @@ def main(_):
             if roi_img.min()<ctMin:
                 ctMin = roi_img.min()
             
-            #####Change!!!!!!
-            #imgArrayList.append(roi_img)
-
-            ##ヒストグラム平坦化    
-            # roi_img = np.array(roi_img, dtype=np.uint8)
-            # roi_img = cv2.equalizeHist(roi_img)
+            imgArrayList.append(roi_img)
 
             ##inverse用
             invDic[i].append({
@@ -693,6 +688,7 @@ def main(_):
             print("{}(st nd) kidney {}/{} cutted".format(i,len(invDic[i]),len(cutKidFragLabel[i][0,0,:])))
         
         #ヒストグラム均一化
+        print(type(imgArrayList[0][0][0]))
         equalizedImageArrayList = equalizingHistogramSummedFloat(imgArrayList, args.npyfile, args.alpha)
         
         llll = 0
