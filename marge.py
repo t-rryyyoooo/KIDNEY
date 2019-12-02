@@ -6,7 +6,7 @@ args = None
 
 def parseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("slicePath", help="~/Desktop/data/slice/summed_hist_1.0/path/case_00")
+    parser.add_argument("slicePath", help="~/Desktop/data/slice/summed_hist_1.0/path")
     parser.add_argument("savePath", help="~/Desktop/data/textList")
     parser.add_argument("suffix", help="sum1.0")
     args = parser.parse_args()
@@ -45,7 +45,7 @@ def main(args):
         if sx in ignore:
             continue
 
-        slicePath = os.path.expanduser(args.slicePath) + sx + ".txt"
+        slicePath = os.path.expanduser(args.slicePath) + '/case_00' + sx + ".txt"
         
         if not os.path.exists(savePath):
             print("Make ", savePath)

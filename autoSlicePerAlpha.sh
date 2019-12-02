@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly DATA="/Volumes/Untitled/data/case_00"
+readonly DATA="/Volumes/Untitled/data"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="/Volumes/Untitled//slice" 
@@ -20,8 +20,8 @@ do
     do
 
     save="${SAVE}/hist_${a}"
-    labPath=${DATA}${i}${LABEL}
-    ctPath=${DATA}${i}${CT}
+    labPath="${DATA}/case_00${i}${LABEL}"
+    ctPath="${DATA}/case_00${i}${CT}"
     saveLab="${save}/label/case_00${i}"
     saveCt="${save}/image/case_00${i}"
     textPath="${save}/path/case_00${i}.txt"

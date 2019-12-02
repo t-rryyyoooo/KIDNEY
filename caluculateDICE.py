@@ -7,8 +7,8 @@ args = None
 
 def parseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument('trueLabel', help = '~/Desktop/data/KIDNEY/case_00')
-    parser.add_argument('resultLabel',help = '~/Desktop/data/hist/segmentation/case_00')
+    parser.add_argument('trueLabel', help = '~/Desktop/data/KIDNEY')
+    parser.add_argument('resultLabel',help = '~/Desktop/data/hist/segmentation')
 
     args = parser.parse_args()
 
@@ -40,8 +40,8 @@ def main(args):
     cancerDICE = []
     for x in testing:
 
-        trueLabel = os.path.expanduser(args.trueLabel) + x + '/segmentation.nii.gz'
-        resultLabel = os.path.expanduser(args.resultLabel) + x + '/label.mha'
+        trueLabel = os.path.expanduser(args.trueLabel) + '/case_00' + x + '/segmentation.nii.gz'
+        resultLabel = os.path.expanduser(args.resultLabel) + '/case_00' + x + '/label.mha'
 
         true = sitk.ReadImage(trueLabel)
         result = sitk.ReadImage(resultLabel)

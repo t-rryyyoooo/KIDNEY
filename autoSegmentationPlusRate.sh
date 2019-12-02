@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly DATA="/home/kakeya/Desktop/tanimoto/data/kits19/case_00"
+readonly DATA="/home/kakeya/Desktop/tanimoto/data/kits19"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="/home/kakeya/Desktop/tanimoto/data/slice/hist_"
@@ -25,8 +25,8 @@ do
             #model=${MODEL}${alpha}.yml
             model='/home/kakeya/Downloads/2DUnetModel_re0.30.yml'
             save="${SAVE}${alpha}/segmentation/case_00${number}/label.mha"
-            ct=${DATA}${number}${CT}
-            label=${DATA}${number}${LABEL}
+            ct="${DATA}/case_00${number}${CT}"
+            label="${DATA}/case_00${number}${LABEL}"
 
             
             

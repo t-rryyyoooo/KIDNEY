@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly DATA="$HOME/Desktop/data/kits19/case_00"
+readonly DATA="$HOME/Desktop/data/kits19"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
@@ -22,8 +22,8 @@ do
 
             weight="${WEIGHT}${alpha}_${t}.hdf5"
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
-            ct=${DATA}${number}${CT}
-            label=${DATA}${number}${LABEL}
+            ct="${DATA}/case_00${number}${CT}"
+            label="${DATA}/case_00${number}${LABEL}"
 
 
             echo $weight

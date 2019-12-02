@@ -6,7 +6,7 @@ readonly VALIDATION="$HOME/Desktop/data/textList/validation_sum_float_"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
 readonly HISTORY="$HOME/Desktop/data/history/history_sum_float_"
 
-readonly DATA="$HOME/Desktop/data/kits19/data/case_00"
+readonly DATA="$HOME/Desktop/data/kits19/data"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
@@ -37,8 +37,8 @@ do
         for number in ${NUMBERS[@]}
         do 
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
-            ct=${DATA}${number}${CT}
-            label=${DATA}${number}${LABEL}
+            ct="${DATA}/case_00${number}${CT}"
+            label="${DATA}/case_00${number}${LABEL}"
 
             echo $label
             echo $ct

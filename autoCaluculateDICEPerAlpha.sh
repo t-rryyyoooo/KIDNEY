@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly TRUE="$HOME/Desktop/data/kits19/case_00"
+readonly TRUE="$HOME/Desktop/data/kits19"
 readonly RESULT="$HOME/Desktop/data/slice/summed_hist_float_"
 #readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 readonly TEXT="$HOME/Desktop/KIDNEY/result/"
@@ -13,7 +13,7 @@ do
     for i in $(seq 0 4)
     do 
     
-        results="${RESULT}${a}/segmentation/$i/case_00"
+        results="${RESULT}${a}/segmentation/$i"
         text="${TEXT}${PREFIX}${a}_${i}.txt"
 
         echo ${TRUE}
@@ -24,5 +24,6 @@ do
         python3 --version
         python3 caluculateDICE.py ${TRUE} ${results}> $text
 
+        echo Done
     done
 done

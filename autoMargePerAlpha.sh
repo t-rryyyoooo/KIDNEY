@@ -10,7 +10,7 @@ readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 for a in ${ALPHA[@]}
 do 
 
-    slice="${SLICE}$a/path/case_00"
+    slice="${SLICE}$a/path"
     suffix=${SUFFIX}${a}
 
     echo $slice

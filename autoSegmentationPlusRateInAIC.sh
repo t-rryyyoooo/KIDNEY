@@ -1,23 +1,12 @@
 #!/bin/bash
 
 #Input
-<<<<<<< HEAD
-readonly DATA="$HOME/Desktop/data/kits19/data/case_00"
-readonly CT="/imaging.nii.gz"
-readonly LABEL="/segmentation.nii.gz"
-readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
-
-#readonly MODEL="/home/vmlab/Desktop/data/model/model_"
-readonly WEIGHT="~/Desktop/data/modelweight/best_sum"
-readonly NPY="~/Desktop/data/orgHist.npy"
-=======
-readonly DATA="$HOME/Desktop/data/kits19/case_00"
+readonly DATA="$HOME/Desktop/data/kits19"
 readonly CT="/imaging.nii.gz"
 readonly LABEL="/segmentation.nii.gz"
 readonly SAVE="$HOME/Desktop/data/slice/summed_hist_float_"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_sum_float_"
 readonly NPY="$HOME/Desktop/KIDNEY/sumHistFloat.npy"
->>>>>>> 9e29c776192d6b6d4a2387533f3612556f78d704
 
 readonly NUMBERS=(000 002 009 020 029 031 036 062 065 068 077 090 105 112 114 133 135 141 155 156 157 162 173 175 183 189 198 208)
 readonly ALPHA=(0.0 0.20 0.40 0.60)
@@ -33,8 +22,8 @@ do
 
             weight="${WEIGHT}${alpha}_${t}.hdf5"
             save="${SAVE}${alpha}/segmentation/${t}/case_00${number}/label.mha"
-            ct=${DATA}${number}${CT}
-            label=${DATA}${number}${LABEL}
+            ct="${DATA}/case_00${number}${CT}"
+            label="${DATA}/case_00${number}${LABEL}"
 
             
             
