@@ -2,7 +2,7 @@ import numpy as np
 import SimpleITK as sitk
 import os
 import argparse
-from funcionos import DICE, caluculateAVG
+from functions import DICE, caluculateAVG
 
 args = None
 
