@@ -1,0 +1,217 @@
+import os
+import numpy as np
+import SimpleITK as sitk
+import random
+import tensorflow as tf
+
+def ReadSliceDataList(filename):
+    datalist = []
+    with open(filename) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            datalist.append((imagefile, labelfile))
+
+    return datalist
+
+def ReadSliceDataList3ch_1ch(filename):
+    datalist = []
+    with open(filename) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            datalist.append((imagefile, labelfile))
+            
+            
+    pathDicImg = {}#{~/case_00000/image0 : ~/case_00000/image0_00.mha}
+    labellist = {}
+    pathList = []#3枚ごとにまとめられたリスト(image,label)
+
+    #パスを同じ腎臓ごとにまとめる
+    for path in datalist:
+        dicPathI, filePathI = os.path.split(path[0])
+        fI,nameI = filePathI.split("_")
+        fPathI = os.path.join(dicPathI, fI)
+        
+
+        if fPathI not in pathDicImg:
+            pathDicImg[fPathI] = []
+            labellist[fPathI] = []
+
+        pathDicImg[fPathI].append(path[0])
+
+        labellist[fPathI].append(path[1])
+
+    #同じ腎臓の中で、あるスライスと前後2枚をくっつける(path)
+
+    for (keyI, valueI),(labkey, labvalue) in zip(pathDicImg.items(), labellist.items()):
+        valueI = sorted(valueI)
+        labvalue = sorted(labvalue)
+        for x in range(1,len(valueI)-1):
+            pathList.append((valueI[x-1:x+2], labvalue[x]))
+   
+    return pathList
+
+def ImportImage(filename):
+    image = sitk.ReadImage(filename)
+    imagearry = sitk.GetArrayFromImage(image)
+    if image.GetNumberOfComponentsPerPixel() == 1:
+        imagearry = imagearry[..., np.newaxis]
+    return imagearry
+
+
+def ImportImage3ch(pList):#[["case_00000/image0_00.mha", "case_00000/image0_01.mha", "case_00000/image0_02.mha"],\
+                          # ["case_00000/image0_01.mha", "case_00000/image0_02.mha", "case_00000/image0_03.mha"]...]
+    
+    check = False
+    for x in pList:
+        img = sitk.ReadImage(x)
+        imgArray = sitk.GetArrayFromImage(img)
+        
+        if not check:
+            check = True
+            stackedArray = imgArray
+
+        else:
+            stackedArray = np.dstack([stackedArray, imgArray])
+    
+    
+    return stackedArray
+
+def GetInputShapes(filenamepair):
+    image = ImportImage3ch(filenamepair[0])
+    label = ImportImage(filenamepair[1])
+    return (image.shape, label.shape)
+
+def GetMinimumValue(image):
+    minmax = sitk.MinimumMaximumImageFilter()
+    minmax.Execute(image)
+    return minmax.GetMinimum()
+
+
+def Affine(t, r, scale, shear, c):
+    a = sitk.AffineTransform(2)
+    a.SetCenter(c)
+    a.Scale(scale)
+    a.Rotate(0,1,r)
+    a.Shear(0,1,shear[0])
+    a.Shear(1,0,shear[1])
+    a.Translate(t)
+    return a
+
+
+def Transforming(image, bspline, affine, interpolator, minval):
+    # B-spline transformation
+    transformed_b = sitk.Resample(image, bspline, interpolator, minval)
+
+    # Affine transformation
+    transformed_a = sitk.Resample(transformed_b, affine, interpolator, minval)
+
+    return transformed_a
+
+
+def ImportImageTransformed(imagefile, labelfile):
+    sigma = 4
+    translationrange = 5 # [mm]
+    rotrange = 5 # [deg]
+    shearrange = 1/16 
+    scalerange = 0.05
+
+    image = sitk.ReadImage(imagefile)
+    label = sitk.ReadImage(labelfile)
+
+    # B-spline parameters
+    bspline = sitk.BSplineTransformInitializer(image, [5,5])
+    p = bspline.GetParameters()
+    numbsplineparams = len(p)
+    coeff = np.random.normal(0, sigma, numbsplineparams)
+    bspline.SetParameters(coeff)
+
+    # Affine parameters
+    translation = np.random.uniform(-translationrange, translationrange, 2)
+    rotation = np.radians(np.random.uniform(-rotrange, rotrange))
+    shear = np.random.uniform(-shearrange, shearrange, 2)
+    scale = np.random.uniform(1-scalerange, 1+scalerange)
+    center = np.array(image.GetSize()) * np.array(image.GetSpacing()) / 2
+    affine = Affine(translation, rotation, scale, shear, center)
+
+    minval = GetMinimumValue(image)
+
+    transformed_image = Transforming(image, bspline, affine, sitk.sitkLinear, minval)
+    transformed_label = Transforming(label, bspline, affine, sitk.sitkNearestNeighbor, 0)
+
+    imagearry = sitk.GetArrayFromImage(transformed_image)
+    imagearry = imagearry[..., np.newaxis]
+    labelarry = sitk.GetArrayFromImage(transformed_label)
+
+    return imagearry, labelarry
+
+def Transforming3d(image, affine, interpolator, minval):
+    #Affine transformation
+    #transformed_a = sitk.Resample(transformed_b, affine, interpolator, minval)
+    transformed_a = sitk.Resample(image, affine, interpolator, minval)
+
+    return transformed_a
+
+
+def ImportImageTransformed3d(imagefile, labelfile):
+    translationrange = 0 # [mm]
+    rotrange = 15 # [deg]
+    shearrange = 0
+    scalerange = 0.05
+
+    # Affine parameters
+    translation = np.random.uniform(-translationrange, translationrange, 2)
+    rotation = np.radians(np.random.uniform(-rotrange, rotrange))
+    shear = np.random.uniform(-shearrange, shearrange, 2)
+    scale = np.random.uniform(1-scalerange, 1+scalerange)
+    
+    #label(1ch)
+    label = sitk.ReadImage(labelfile)
+    center = np.array(label.GetSize()) * np.array(label.GetSpacing()) / 2
+
+    
+    affine = Affine(translation, rotation, scale, shear, center)
+    transformed_label = Transforming3d(label, affine, sitk.sitkNearestNeighbor, 0)
+    labelarry = sitk.GetArrayFromImage(transformed_label)
+    
+    #image(3ch)
+    check = False
+    for img in imagefile:
+        image = sitk.ReadImage(img)
+        minval = GetMinimumValue(image)
+
+        transformed_image = Transforming3d(image, affine, sitk.sitkLinear, minval)
+        imagearry = sitk.GetArrayFromImage(transformed_image)
+        
+        if not check:
+            check = True
+            stackedArray = imagearry
+
+        else:
+            stackedArray = np.dstack([stackedArray, imagearry])
+    
+    
+
+    return stackedArray, labelarry
+
+def ImportBatchArray(datalist, batch_size = 32, apply_augmentation = False):
+    while True:
+        indices = list(range(len(datalist)))
+        random.shuffle(indices)
+        
+
+        if apply_augmentation:
+            for i in range(0, len(indices), batch_size):
+               imagelabellist = [ ImportImageTransformed3d(datalist[idx][0], datalist[idx][1]) for idx in indices[i:i+batch_size] ]
+               #print("apply_augmentation")
+               imagelist, labellist = zip(*imagelabellist)
+               onehotlabellist = tf.keras.utils.to_categorical(labellist,num_classes=3)
+               #print("patch shape1 :",imagelist[0].shape)
+               yield (np.array(imagelist), np.array(onehotlabellist))
+
+        else:
+            for i in range(0, len(indices), batch_size):
+                imagelist = np.array([ ImportImage3ch(datalist[idx][0]) for idx in indices[i:i+batch_size] ])
+
+                onehotlabellist = np.array([ tf.keras.utils.to_categorical(ImportImage(datalist[idx][1]),num_classes=3) for idx in indices[i:i+batch_size] ])
+
+                yield (imagelist, onehotlabellist)

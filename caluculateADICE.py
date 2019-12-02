@@ -2,7 +2,7 @@ import numpy as np
 import SimpleITK as sitk
 import os
 import argparse
-
+from functions import DICE, caluculateAVG
 args = None
 
 def parseArgs():
@@ -14,23 +14,6 @@ def parseArgs():
 
     return args
 
-def DICE(trueLabel, result):
-    intersection=np.sum(np.minimum(np.equal(trueLabel,result),trueLabel))
-    union = np.count_nonzero(trueLabel)+np.count_nonzero(result)
-    dice = 2 * intersection / union
-   
-    return dice
-
-def caluculateAVG(num):
-    if len(num) == 0:
-        return 1.0
-    
-    else: 
-        nsum = 0
-        for i in range(len(num)):
-            nsum += num[i]
-
-        return nsum / len(num)
 
 def main(args):
     trueLabel = os.path.expanduser(args.trueLabel) 

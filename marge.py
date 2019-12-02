@@ -1,7 +1,7 @@
 import sys
 import os
 import argparse
-
+from functions import readlines_file, save_file, list_file
 args = None
 
 def parseArgs():
@@ -11,23 +11,6 @@ def parseArgs():
     parser.add_argument("suffix", help="sum1.0")
     args = parser.parse_args()
     return args
-
-def readlines_file(file_name):
-    # 行毎のリストを返す
-    with open(file_name, 'r') as file:
-        return file.readlines()
-
-
-def save_file(file_name, text):
-    with open(file_name, 'a') as file:
-        file.write(text + "\n")
-        
-def list_file(file_name,savefile):
-    cal1 = readlines_file(file_name)
-    # 改行を削除
-    cal1 = list(map(lambda x: x.strip("\n"), cal1))
-    for line in cal1:
-        save_file(savefile, line)
 
 
 def main(args):

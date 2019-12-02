@@ -10,6 +10,7 @@ import keras.backend as K
 import time
 
 
+
 args = None
 
 def ParseArgs():
@@ -39,11 +40,11 @@ def ParseArgs():
     args = parser.parse_args()
     return args
 
-
 def createParentPath(filepath):
     head, _ = os.path.split(filepath)
     if len(head) != 0:
         os.makedirs(head, exist_ok = True)
+
 
 
 def ReadSliceDataList(filename):
@@ -62,7 +63,6 @@ def ImportImage(filename):
     if image.GetNumberOfComponentsPerPixel() == 1:
         imagearry = imagearry[..., np.newaxis]
     return imagearry
-
 
 def GetInputShapes(filenamepair):
     image = ImportImage(filenamepair[0])
@@ -154,7 +154,6 @@ def ImportBatchArray(datalist, batch_size = 32, apply_augmentation = False):
                 onehotlabellist = np.array([ keras.utils.to_categorical(ImportImage(datalist[idx][1]),num_classes=3) for idx in indices[i:i+batch_size] ])
                 
                 yield (imagelist, onehotlabellist)
-
 
 def CreateConvBlock(x, filters, n = 2, use_bn = True, apply_pooling = True, name = 'convblock'):
     for i in range(1,n+1):
@@ -271,25 +270,6 @@ def dice(y_true, y_pred):
     dice = 2 * intersection / (union + eps)
     return dice
 
-
-class LatestWeightSaver(tf.keras.callbacks.Callback):
-    def __init__(self, filename):
-        self.filename_ = filename
-
-    def on_epoch_end(self, epoch, logs):
-        self.model.save_weights(self.filename_)
-
-
-class PeriodicWeightSaver(tf.keras.callbacks.Callback):
-    def __init__(self, logdir, interval):
-        self.logdir_ = logdir
-        self.interval_ = interval
-
-    def on_epoch_end(self, epoch, logs):
-        if epoch % self.interval_ == 0:
-            filename = self.logdir_ + "/weights_e{:02d}.hdf5".format(epoch)
-            self.model.save_weights(filename)
-
 def penalty_categorical(y_true,y_pred):
     array_tf = tf.convert_to_tensor(y_true,dtype=tf.float32)
     pred_tf = tf.convert_to_tensor(y_pred,dtype=tf.float32)
@@ -332,13 +312,25 @@ def kidney_dice(y_true, y_pred):#canver
     union = tf.count_nonzero(prediction, dtype=tf.float32) + tf.count_nonzero(truelabel, dtype=tf.float32)
     dice = 2 * intersection / (union + eps)
     return dice
+    
 
-def caluculateTime( start, end):
-    tt = end-start
-    hour = int(tt/3600)
-    mini = int((tt-hour*3600)/60)
-    sec = int(tt - hour*3600 - mini*60)
-    print("time: {}:{:2d}:{:2d}".format(hour, mini, sec))
+class LatestWeightSaver(tf.keras.callbacks.Callback):
+    def __init__(self, filename):
+        self.filename_ = filename
+
+    def on_epoch_end(self, epoch, logs):
+        self.model.save_weights(self.filename_)
+
+
+class PeriodicWeightSaver(tf.keras.callbacks.Callback):
+    def __init__(self, logdir, interval):
+        self.logdir_ = logdir
+        self.interval_ = interval
+
+    def on_epoch_end(self, epoch, logs):
+        if epoch % self.interval_ == 0:
+            filename = self.logdir_ + "/weights_e{:02d}.hdf5".format(epoch)
+            self.model.save_weights(filename)
 
 def main(_):
     t1 = time.time()

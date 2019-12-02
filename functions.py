@@ -1,0 +1,156 @@
+import numpy as np
+import os
+import SimpleITK as sitk
+import tensorflow as tf
+
+def DICE(trueLabel, result):
+    intersection=np.sum(np.minimum(np.equal(trueLabel,result),trueLabel))
+    union = np.count_nonzero(trueLabel)+np.count_nonzero(result)
+    dice = 2 * intersection / union
+   
+    return dice
+
+def caluculateAVG(num):
+    if len(num) == 0:
+        return 1.0
+    
+    else: 
+        nsum = 0
+        for i in range(len(num)):
+            nsum += num[i]
+
+        return nsum / len(num)
+
+def createParentPath(filepath):
+    head, _ = os.path.split(filepath)
+    if len(head) != 0:
+        os.makedirs(head, exist_ok = True)
+
+def write_file(file_name, text):
+    if not os.path.exists(file_name):
+        createParentPath(file_name)
+    with open(file_name, mode='a') as file:
+        #print(text)
+        file.write(text + "\n")
+
+def Resampling(image, newsize, roisize, origin = None, is_label = False):
+    #isize = image.GetSize()
+    ivs = image.GetSpacing()
+    
+    if image.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(image)
+        minval = minmax.GetMinimum()
+    else:
+        minval = None
+    
+    osize = newsize
+    
+
+    
+    ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
+    
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetSize(osize)
+    if origin is not None:
+        resampler.SetOutputOrigin(origin)
+    else:
+        resampler.SetOutputOrigin(image.GetOrigin())
+    resampler.SetOutputDirection(image.GetDirection())
+    resampler.SetOutputSpacing(ovs)
+    if minval is not None:
+        resampler.SetDefaultPixelValue(minval)
+    if is_label:
+        resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+
+    resampled = resampler.Execute(image)
+
+    return resampled
+
+def readlines_file(file_name):
+    # 行毎のリストを返す
+    with open(file_name, 'r') as file:
+        return file.readlines()
+
+
+def save_file(file_name, text):
+    with open(file_name, 'a') as file:
+        file.write(text + "\n")
+        
+def list_file(file_name,savefile):
+    cal1 = readlines_file(file_name)
+    # 改行を削除
+    cal1 = list(map(lambda x: x.strip("\n"), cal1))
+    for line in cal1:
+        save_file(savefile, line)
+
+def caluculateTime( start, end):
+    tt = end-start
+    hour = int(tt/3600)
+    mini = int((tt-hour*3600)/60)
+    sec = int(tt - hour*3600 - mini*60)
+    print("time: {}:{:2d}:{:2d}".format(hour, mini, sec))
+
+def dice(y_true, y_pred):
+    K = tf.keras.backend
+
+    eps = K.constant(1e-6)
+    truelabels = tf.argmax(y_true, axis=-1, output_type=tf.int32)
+    predictions = tf.argmax(y_pred, axis=-1, output_type=tf.int32)
+
+    intersection = K.cast(K.sum(K.minimum(K.cast(K.equal(predictions, truelabels), tf.int32), truelabels)), tf.float32)
+    union = tf.count_nonzero(predictions, dtype=tf.float32) + tf.count_nonzero(truelabels, dtype=tf.float32)
+    dice = 2 * intersection / (union + eps)
+    return dice
+
+def cancer_dice(y_true, y_pred):
+    K = tf.keras.backend
+
+    eps = K.constant(1e-6)
+    truelabels = tf.argmax(y_true, axis=-1, output_type=tf.int32)
+    predictions = tf.argmax(y_pred, axis=-1, output_type=tf.int32)
+    
+    truelabel = K.cast(K.equal(truelabels, 2), tf.int32)##ガンだけ
+    prediction = K.cast(K.equal(predictions, 2), tf.int32)
+
+    intersection = K.cast(K.sum(K.minimum(K.cast(K.equal(prediction, truelabel), tf.int32), truelabel)), tf.float32)
+    union = tf.count_nonzero(prediction, dtype=tf.float32) + tf.count_nonzero(truelabel, dtype=tf.float32)
+    dice = 2 * intersection / (union + eps)
+    return dice
+
+def kidney_dice(y_true, y_pred):#canver
+    K = tf.keras.backend
+
+    eps = K.constant(1e-6)
+    truelabels = tf.argmax(y_true, axis=-1, output_type=tf.int32)
+    predictions = tf.argmax(y_pred, axis=-1, output_type=tf.int32)
+    
+    truelabel = K.cast(K.equal(truelabels, 1), tf.int32)##腎臓だけ
+    prediction = K.cast(K.equal(predictions, 1), tf.int32)
+
+    intersection = K.cast(K.sum(K.minimum(K.cast(K.equal(prediction, truelabel), tf.int32), truelabel)), tf.float32)
+    union = tf.count_nonzero(prediction, dtype=tf.float32) + tf.count_nonzero(truelabel, dtype=tf.float32)
+    dice = 2 * intersection / (union + eps)
+    return dice
+
+def penalty_categorical(y_true,y_pred):
+    K = tf.keras.backend
+    
+    array_tf = tf.convert_to_tensor(y_true,dtype=tf.float32)
+    pred_tf = tf.convert_to_tensor(y_pred,dtype=tf.float32)
+
+    epsilon = K.epsilon()
+
+    result = tf.reduce_sum(array_tf,[0,1,2,3])
+
+    #result_pow = tf.pow(result,1.0/3.0)
+    result_pow = tf.math.log(result)
+
+    weight_y = result_pow / tf.reduce_sum(result_pow)
+
+    k_dice = kidney_dice(y_true, y_pred)
+    c_dice = cancer_dice(y_true, y_pred)
+
+    return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.math.log(pred_tf + epsilon),axis=-1) \
+       + (1 - k_dice) + (1 - c_dice)
