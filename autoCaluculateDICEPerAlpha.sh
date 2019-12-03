@@ -2,7 +2,7 @@
 
 #Input
 readonly TRUE="$HOME/Desktop/data/kits19"
-readonly RESULT="$HOME/Desktop/data/slice/summed_hist_float_"
+readonly RESULT="$HOME/Desktop/data/slice/hist_"
 #readonly ALPHA=(0.0 0.20 0.40 0.60 0.80 1.0)
 readonly TEXT="$HOME/Desktop/KIDNEY/result/"
 readonly PREFIX="summed_float_"
