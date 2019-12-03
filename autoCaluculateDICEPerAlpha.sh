@@ -14,7 +14,7 @@ do
     for i in $(seq 0 4)
     do 
     
-        results="${RESULT}${a}/segmentation/$i"
+        results="${RESULT}${a}/segmentation/${i}times"
         text="${TEXT}${PREFIX}${a}_${i}.txt"
 
         echo ${TRUE}
