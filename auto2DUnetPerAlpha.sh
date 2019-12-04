@@ -14,7 +14,7 @@ read ALPHA
 
 for alpha in ${ALPHA[@]}
 do
-    for t in $(seq 0 4)
+    for t in $(seq 5 9)
     do
 
         training=${TRAINING}${alpha}.txt
