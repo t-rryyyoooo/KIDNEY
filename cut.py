@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import SimpleITK as sitk
+from functions import Resampling
 
 def cut3D(labelArray, imageArray, axis):
     if axis=="axial":
