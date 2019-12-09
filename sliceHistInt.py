@@ -7,7 +7,7 @@ import sys
 from functions import createParentPath, write_file, Resampling
 from cut import *
 from effect import *
-
+from pathlib import Path
 args = None
 
 def ParseArgs():
