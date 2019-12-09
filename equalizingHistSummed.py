@@ -54,11 +54,11 @@ def main(args):
         pL = Path(slicePath) / ('label/case_00' + sx)
         
         if not pI.exists():
-            print('File does not exist. ')
+            print(str(pI), "dose not exit.")
             sys.exit()
         
         if not pL.exists():
-            print('File does not exist. ')
+            print(str(pL), "does not exit.")
             sys.exit()
         
         #pI = list(pI.iterdir()).sort()
