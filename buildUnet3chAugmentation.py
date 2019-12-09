@@ -181,6 +181,7 @@ def main(_):
     
     if args.history is not None:
         historyy = os.path.expanduser(args.history)
+        createParentPath(historyy)
         history_file = open(historyy,"a")
         for x in range(epochs):
 
