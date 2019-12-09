@@ -11,7 +11,7 @@ echo -n ALPHA=
 read ALPHA
 for a in ${ALPHA[@]}
 do
-    for i in $(seq 0 4)
+    for i in $(seq 5 9)
     do 
     
         results="${RESULT}${a}/segmentation/${i}times"
