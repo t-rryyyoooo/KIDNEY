@@ -202,7 +202,7 @@ def caluculate_area(imgArray):
     imgArray = np.array(imgArray,dtype=np.uint8)
 
     ## 輪郭抽出
-   
+    
     vvcheck = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if len(vvcheck)==3:
         _, contours, _ = cv2.findContours(imgArray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    

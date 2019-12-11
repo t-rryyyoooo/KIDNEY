@@ -10,11 +10,15 @@ echo -n GPU_ID:
 read id
 echo -n ALPHA=
 read ALPHA
-
+echo The number of iteration
+echo From 
+read start
+echo to 
+read end
 
 for alpha in ${ALPHA[@]}
 do
-    for t in $(seq 10 20)
+    for t in $(seq $start $end)
     do
 
         training=${TRAINING}${alpha}.txt
