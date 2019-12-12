@@ -11,9 +11,9 @@ read id
 echo -n ALPHA=
 read ALPHA
 echo The number of iteration
-echo From 
+echo -n From_
 read start
-echo to 
+echo -n to_
 read end
 
 for alpha in ${ALPHA[@]}
