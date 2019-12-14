@@ -9,7 +9,6 @@ from email.policy import SMTP
 
 args = None
 
-
 def ParseArgs():
     parser = argparse.ArgumentParser()
     #parser.add_argument("from_addr", help="from address")
