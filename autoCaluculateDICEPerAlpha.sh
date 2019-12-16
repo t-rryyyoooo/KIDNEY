@@ -9,9 +9,15 @@ readonly PREFIX="summed_hist_float_"
 
 echo -n ALPHA=
 read ALPHA
+echo The number of eteration
+echo -n From_
+read start
+echo -n to_
+read end
+
 for a in ${ALPHA[@]}
 do
-    for i in $(seq 5 9)
+    for i in $(seq $start $end)
     do 
     
         results="${RESULT}${a}/segmentation/${i}"
