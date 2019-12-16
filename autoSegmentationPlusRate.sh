@@ -14,13 +14,17 @@ echo -n GPU_ID:
 read id
 echo -n ALPHA=
 read ALPHA
-
+echo The number of eteration
+echo -n From_
+read start
+echo -n to_
+read end
 
 for alpha in ${ALPHA[@]}
 do
     for number in ${NUMBERS[@]}
     do
-        for t in $(seq 5 9)
+        for t in $(seq $start $end)
         do 
 
 
