@@ -2,6 +2,7 @@ import numpy as np
 import os
 import SimpleITK as sitk
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 def DICE(trueLabel, result):
     intersection=np.sum(np.minimum(np.equal(trueLabel,result),trueLabel))
@@ -154,3 +155,25 @@ def penalty_categorical(y_true,y_pred):
 
     return (-1) * tf.reduce_sum( 1 / (weight_y + epsilon) * array_tf * tf.math.log(pred_tf + epsilon),axis=-1) \
        + (1 - k_dice) + (1 - c_dice)
+
+def advancedSettings(xlabel, ylabel, fontsize=20):
+    #plt.figure(figsize=(10,10))
+    plt.xlabel(xlabel, fontsize=fontsize)
+    plt.ylabel(ylabel, fontsize=fontsize)
+    #plt.xticks(left + width/2,left)
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+    plt.show()
+    
+    return 
+
+def saveImage(imgArray, img, savePath):
+    image = sitk.GetImageFromArray(imgArray)
+    image.SetDirection(img.GetDirection())
+    image.SetOrigin(img.GetOrigin())
+    image.SetSpacing(img.GetSpacing())
+    
+    sitk.WriteImage(image, savePath, True)
+    
+    return 
+
