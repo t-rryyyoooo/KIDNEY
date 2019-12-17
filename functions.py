@@ -167,13 +167,13 @@ def advancedSettings(xlabel, ylabel, fontsize=20):
     
     return 
 
-def saveImage(imgArray, img, savePath):
-    image = sitk.GetImageFromArray(imgArray)
-    image.SetDirection(img.GetDirection())
-    image.SetOrigin(img.GetOrigin())
-    image.SetSpacing(img.GetSpacing())
+def saveImage(saveImgArray, img, savePath):
+    saveImg = sitk.GetImageFromArray(saveImgArray)
+    saveImg.SetDirection(img.GetDirection())
+    saveImg.SetOrigin(img.GetOrigin())
+    saveImg.SetSpacing(img.GetSpacing())
     
-    sitk.WriteImage(image, savePath, True)
-    
-    return 
-
+    print('Saving image to {}...'.format(savePath))
+    sitk.WriteImage(saveImg, savePath, True)
+    print("Done.")
+    return
