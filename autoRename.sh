@@ -1,7 +1,7 @@
 #! /bin/bash
 
-readonly OLD="summed_hist_float_"
-readonly NEW="summed_float_"
+readonly OLD="result/summed_float_"
+readonly NEW="result/summed_hist_float_"
 
 alpha=(0.0 0.20 0.40 0.60 0.80 1.0)
 
