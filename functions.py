@@ -21,6 +21,24 @@ def caluculateAVG(num):
             nsum += num[i]
 
         return nsum / len(num)
+    
+def outputMedium(num):
+    number = sorted(num)
+    l = len(number)
+    half = l//2
+    if l % 2 != 0:
+        
+        return number[half]
+    
+    else:
+        
+        return (number[half - 1] + number[half]) / 2
+    
+def outputMax(num):
+    number = sorted(num)
+    
+    return number[-1]
+
 
 def createParentPath(filepath):
     head, _ = os.path.split(filepath)
