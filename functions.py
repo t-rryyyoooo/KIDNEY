@@ -195,3 +195,11 @@ def saveImage(saveImgArray, img, savePath):
     sitk.WriteImage(saveImg, savePath, True)
     print("Done.")
     return
+
+def printchk(x):
+    for s, v in globals().items():
+        if id(v) == id(x):
+            print('{} : {}'.format(s, x))
+            break
+            
+    return 
