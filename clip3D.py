@@ -122,7 +122,7 @@ def getSortedDistance(obbPoints, index):
     for _ , i in length:
         out.append(i)
     
-    return out
+    return np.array(out)
 
 def getRadianFromCoords(x, y, axis):
     '''
@@ -184,22 +184,6 @@ def makeRotationMatrix(radian, axis):
         
         return matrix
 
-def multiplyMatrix(matrix, points):
-    '''
-    Argument
-    matrix: rotation matrix
-    points: [np.array([1,2,3]), np.array([2,3,3]), ...]
-    
-    Return points multiplied matrix by element
-    
-    '''
-    l = len(points)
-    p = []
-    for x in range(l):
-        p.append(matrix @ points[x])
-    
-    return p
-
 
 def determineAxis(radian):
     '''
@@ -218,17 +202,16 @@ def determineRadian(radian):
     
     '''
     axis = determineAxis(radian)
-    print(axis)
     if axis=="horizontal":
         if -pi/4 <= radian <= pi/4:
             return -radian, axis
         
         else:
             if radian > 0:
-                return pi/2 - radian, axis
+                return pi - radian, axis
             
             else:
-                return -pi/2 + radian, axis
+                return -pi - radian, axis
             
     if axis=="vertical":
         if radian > 0:
@@ -244,46 +227,71 @@ def makeCompleteMatrix(points):
     
     Return rotation matrix that rotates bounding box so that it is parallel to the xyz axis.
     '''
+    axisList = ("yz", "xz", "xy")
+    from math import degrees
     
-    p = [points[0][0], points[0][1], points[1][1], points[2][1]]
+    p = np.array([points[0][0], points[0][1], points[1][1], points[2][1]])
     
-    radianX = getRadianFromCoords(p[0], p[1], 0)
-    print(math.degrees(radianX))
-    radianX, direction = determineRadian(radianX)
-    print(math.degrees(radianX))
+    axis = 0
+    orgRadianX = getRadianFromCoords(p[0], p[1], axis)
+    radianX, directionX = determineRadian(orgRadianX)
     
+    print("The gradient in the {} plane is {}.".format(axisList[axis], degrees(orgRadianX)))
+    print("So, rotate by {} so that it is parallel to {} direction.\n".format(degrees(radianX), directionX))
     
     matrixX = makeRotationMatrix(radianX, 0)
-    p = multiplyMatrix(matrixX, p)
-    print([x.astype(int) for x in p])
+    p = np.einsum("ij, kj->ki", matrixX, p)
     
-    if direction=="horizontal":
-        radianY = getRadianFromCoords(p[0],p[2], 1)
+    #print(p.astype(int))
+    
+    if directionX == "horizontal":
+        axis = 2    
+    else:
+        axis = 1
+    
+    orgRadianY = getRadianFromCoords(p[0], p[1], axis)
+    
+    
+    radianY, directionY = determineRadian(orgRadianY)
+    
+   
+    
+    print("The gradient in the {} plane is {}.".format(axisList[axis], degrees(orgRadianY)))
+    print("So, rotate by {} so that it is parallel to {} direction.\n".format(degrees(radianY), directionY))
+
+    matrixY = makeRotationMatrix(radianY, axis)
+    p = np.einsum("ij, kj->ki", matrixY, p)
+    
+    #sprint(p.astype(int))
+    
+    if directionX == "horizontal":
+        if directionY == "horizontal":
+            axis = 0
+        else:
+            axis = 1
+            
     
     else:
-        radianY = getRadianFromCoords(p[0], p[1], 1)
+        if directionY == "horizontal":
+            axis = 0
+        else:
+            axis = 2
         
-    print(math.degrees(radianY))  
-    radianY, _ = determineRadian(radianY)
-    print(math.degrees(radianY))
+    orgRadianZ = getRadianFromCoords(p[0], p[2], axis)
 
-    matrixY = makeRotationMatrix(radianY, 1)
-    p = multiplyMatrix(matrixY, p)
-    print([x.astype(int) for x in p])
-    
-    
-    radianZ = getRadianFromCoords(p[0],p[2], 2)
-    print(math.degrees(radianZ))
-    radianZ, _ = determineRadian(radianZ)
-    print(math.degrees(radianZ))
-    
-    matrixZ = makeRotationMatrix(radianZ, 2)
-    p = multiplyMatrix(matrixZ, p)
-    print([np.where(x > 0, x + 0.5, x - 0.5).astype(int) for x in p])
 
-    #print([np.where(x+ppp > 0, x+ppp + 0.5, x + ppp- 0.5).astype(int) for x in p])
+    radianZ, directionZ = determineRadian(orgRadianZ)
+
+    print("The gradient in the {} plane is {}.".format(axisList[axis], degrees(orgRadianZ)))
+    print("So, rotate by {} so that it is parallel to {} direction.\n".format(degrees(radianZ), directionZ))
+
+    matrixZ = makeRotationMatrix(radianZ, axis)
+    p = np.einsum("ij, kj->ki", matrixZ, p)
+
+    #print(np.where(p > 0, p + 0.5, p - 0.5).astype(int))
     
     return matrixZ @ matrixY @ matrixX, p
+
 
 def clipXYZ(array, imgShape):
     '''
@@ -292,54 +300,54 @@ def clipXYZ(array, imgShape):
     '''
     l =[]
     for i in range(3):
-        l.append(np.clip(array[...,i], 0, imgShape[i] - 1))
+        l.append(np.clip(array[...,i], 1, imgShape[i] - 1))
     
     return np.stack(l, axis=-1)
 
 def determineClipSize(boundingVertics, imgShape, expansion=0):
-    origin = boundingVertics[0].astype(int)
+    o = boundingVertics[0].astype(int)
 
-    origin = origin - expansion
-    origin = clipXYZ(origin, imgShape)
+    o = o - expansion
+    o = clipXYZ(o, imgShape)
 
-    clipSize = sum(boundingVertics) - 3 * boundingVertics[0]
-    clipSize = (clipSize + 1).astype(int)
+    c = sum(boundingVertics) - 3 * boundingVertics[0]
+    c = (c + 1).astype(int)
 
-    clipSize = clipSize + expansion
-    clipSize = clipXYZ(clipSize, imgShape)
+    c = c + expansion
+    c = clipXYZ(c, imgShape)
 
-    
+    origin = np.where(o < c, o, c)
+    clipSize = np.where(o < c, c, o)
+
+
     return origin, clipSize
+
 
 def makeRefCoords(imgArray, rotationMatrix):
     # For affine transformation, make dummyArray that is a matrix with the coordinates for each pixels
     SL, CL, AL = imgArray.shape
     # For affine transformation, make dummyArray that is a matrix with the coordinates for each pixels
     x, y, z = np.mgrid[:SL, :CL, :AL]
-    dummyArray = np.stack([x, y, z], axis=-1)
-    print(dummyArray.shape)
+    dummyArray = np.stack([x, y, z, np.ones((SL, CL, AL))], axis=-1)
     
     # For affine transformation, make inverse matrix
     invAffine = np.linalg.inv(rotationMatrix)
     
     # Caluculate the coordinates before conversion that each pixel after conversion should refer to
     refCoords = np.einsum('ijkm, lm->ijkl', dummyArray, invAffine)
-    print(refCoords.shape)
     
-    return refCoords
+    return refCoords[...,:3]
 
 def rotateImageArray(imgArray, refCoords, interpolation):
     if interpolation == "nearest":
         refCoordsNearest = np.where(refCoords > 0, refCoords + 0.5, refCoords - 0.5).astype(int)
         refCoordsNearest = clipXYZ(refCoordsNearest, imgArray.shape)
         
-        print(refCoordsNearest.shape)
         
         rotatedImageArray = imgArray[refCoordsNearest[...,0], refCoordsNearest[..., 1], refCoordsNearest[..., 2]]
 
     if interpolation == "linear":
         # Caluculate 8 vertics around
-        print(refCoords.shape)
         lc = [0]*8
         lc[0] = refCoords.astype(int)
         lc[1] = lc[0] + [1, 0, 0]
@@ -350,14 +358,11 @@ def rotateImageArray(imgArray, refCoords, interpolation):
         lc[6] = lc[0] + [0, 1, 1]
         lc[7] = lc[0] + [1, 1, 1]
         linearCoords = np.stack(lc, axis=0)
-        print(linearCoords.shape)
         
         diff = (refCoords - linearCoords[0,:,:,:,:])
         alpha = diff[..., 0]
         beta = diff[..., 1]
         gamma = diff[..., 2]
-        print(alpha[0,0,10],beta[0,0,10], gamma[0,0,10])
-        print(alpha.shape, beta.shape, gamma.shape)
         
         #Caluculate weights
         lw = [0] * 8
@@ -371,7 +376,6 @@ def rotateImageArray(imgArray, refCoords, interpolation):
         lw[7] = alpha * beta * gamma
 
         linearWeight = np.stack(lw, axis=-1)
-        print(linearWeight.shape)
         
         linearCoords = clipXYZ(linearCoords, imgArray.shape)
         x = linearCoords[:,:,:,:,0]
@@ -380,3 +384,31 @@ def rotateImageArray(imgArray, refCoords, interpolation):
         rotatedImageArray = np.einsum('ijkm, mijk->ijk', linearWeight, imgArray[x, y, z])
         
     return rotatedImageArray
+
+
+def determineSlide(boundindVertics, rotationMatrix, imgArray):
+    # Slide to the minimum location is 0.
+
+    Min = boundindVertics.min(axis=0)
+    print("Minimum list : ", Min)
+    
+    slideMin = np.where(Min < 0, -Min, 0).astype(int)
+    print("So, slide by ", slideMin)
+
+    # Slide to the maximum location is imgArray.shape - 1
+    Max = boundindVertics.max(axis=0)
+    print("imgArray shape : ", imgArray.shape)
+    print("MaximumList : ", Max)
+    slideMax = np.where(Max >= imgArray.shape, -(Max - imgArray.shape) - 1, 0).astype(int)
+    print("So, slide by ", slideMax)
+
+
+    slide = slideMin + slideMax
+
+    # Integrate slide into rotationMatrix
+    affineMatrix = np.array([[*rotationMatrix[0], slide[0]], 
+                             [*rotationMatrix[1], slide[1]],
+                             [*rotationMatrix[2], slide[2]],
+                             [0, 0, 0, 1]])
+    
+    return slide, affineMatrix
