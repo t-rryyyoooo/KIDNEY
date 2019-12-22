@@ -1,7 +1,7 @@
 import SimpleITK as sitk
 import numpy as np
 from pyobb.obb import OBB
-from functions import saveImage, printchk
+from functions import saveImage, printchk, createParentPath
 from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, rotateImageArray
 import argparse
 from pathlib import Path
@@ -33,7 +33,7 @@ def main(args):
     print("startIndex : ", startIdx)
     print("endIndex : ", endIdx)
 
-    # Divide the kidney into leftArray and rightArray
+        # Divide the kidney into leftArray and rightArray
     leftArray = labelArray[ : startIdx[1] - 1, :, :]
     rightArray = labelArray[endIdx[0] + 1 : , :, :]
     print('leftArray shapes : ', leftArray.shape)
@@ -41,93 +41,98 @@ def main(args):
 
     leftImgArray = imageArray[ : startIdx[1] - 1,:,:]
     rightImgArray = imageArray[endIdx[0] + 1 : , :, :]
+   
+    arrayDict = {"left" : [leftArray, leftImgArray], "right" : [rightArray, rightImgArray]}
 
-    # Input array
-    inputLabelArray = rightArray
-    inputImageArray = rightImgArray
+    for xxx in ["left", "right"]:
+        # Input array
+        inputLabelArray = arrayDict[xxx][0]
+        inputImageArray = arrayDict[xxx][1]
 
-    # Find kidney region
-    idx = np.where(inputLabelArray > 0)
+        # Find kidney region
+        idx = np.where(inputLabelArray > 0)
 
-    # Preprocessing for OBB
-    vertics = np.stack([*idx], axis=-1)
+        # Preprocessing for OBB
+        vertics = np.stack([*idx], axis=-1)
 
-    # Implement OBB
-    obb = OBB.build_from_points(vertics)
+        # Implement OBB
+        obb = OBB.build_from_points(vertics)
 
-    # Minimum vertics for defining bounding box per vertex
-    index = (((0, 1), (0, 3), (0, 5)),
-             ((1, 0), (1, 2), (1, 4)),
-             ((2, 1), (2, 3), (2, 7)),
-             ((3, 0), (3, 2), (3, 6)),
-             ((4, 1), (4, 5), (4, 7)),
-             ((5, 0), (5, 4), (5, 6)),
-             ((6, 3), (6, 5), (6, 7)), 
-             ((7, 2,), (7, 4), (7, 6)))
+        # Minimum vertics for defining bounding box per vertex
+        index = (((0, 1), (0, 3), (0, 5)),
+                 ((1, 0), (1, 2), (1, 4)),
+                 ((2, 1), (2, 3), (2, 7)),
+                 ((3, 0), (3, 2), (3, 6)),
+                 ((4, 1), (4, 5), (4, 7)),
+                 ((5, 0), (5, 4), (5, 6)),
+                 ((6, 3), (6, 5), (6, 7)), 
+                 ((7, 2,), (7, 4), (7, 6)))
 
-    # Find the closest vertex to origin
-    minVertex = sorted([(x[0]**2 + x[1]**2 + x[2]**2, i) for i, x in enumerate(obb.points)])[0][1]
-    print("minVertex : ", minVertex)
+        # Find the closest vertex to origin
+        minVertex = sorted([(x[0]**2 + x[1]**2 + x[2]**2, i) for i, x in enumerate(obb.points)])[0][1]
+        print("minVertex : ", minVertex)
 
-    # Calucualte the length of each side of bouding box and output in decending order
-    points = getSortedDistance(obb.points, index[minVertex])
+        # Calucualte the length of each side of bouding box and output in decending order
+        points = getSortedDistance(obb.points, index[minVertex])
 
-    #Slide to locate point[0][0] into (0,0,0)
-    #points = points - points[0][0]
+        #Slide to locate point[0][0] into (0,0,0)
+        #points = points - points[0][0]
 
-    rotationMatrix, rotatedBoundingVertics = makeCompleteMatrix(points)
-    print("rotatedBoundingVertics")
-    print(rotatedBoundingVertics.astype(int))
+        rotationMatrix, rotatedBoundingVertics = makeCompleteMatrix(points)
+        print("rotatedBoundingVertics")
+        print(rotatedBoundingVertics.astype(int))
 
-    #Measure for rotated coordinates are out of range of inputArray size
-    slide, affineMatrix = determineSlide(rotatedBoundingVertics, rotationMatrix, inputLabelArray)
+        #Measure for rotated coordinates are out of range of inputArray size
+        slide, affineMatrix = determineSlide(rotatedBoundingVertics, rotationMatrix, inputLabelArray)
 
-    # Slide boundingVertics
-    print("slide : ", slide)
-    rotatedAndSlidedBoundingVertics = rotatedBoundingVertics + slide
-    print("rotatedAndSlidedBoundingVertics")
-    print(rotatedAndSlidedBoundingVertics.astype(int))
-
-
-    origin, clipSize = determineClipSize(rotatedAndSlidedBoundingVertics, inputLabelArray.shape)
-    print("origin : ", origin)
-    print("clipSize : ", clipSize)
-
-    refCoords = makeRefCoords(inputLabelArray, affineMatrix)
-    print("redCoords shape : ", refCoords.shape)
-    
-    print("Rotating image...")
-    rotatedLabelArray = rotateImageArray(inputLabelArray, refCoords, "nearest")
-    rotatedImageArray = rotateImageArray(inputImageArray, refCoords, "linear")
-
-    rotatedLabelArray = rotatedLabelArray[origin[0] - 1 : clipSize[0] + 1,
-                                          origin[1] - 1 : clipSize[1] + 1,
-                                          origin[2] - 1 : clipSize[2] + 1]
-
-    rotatedImageArray = rotatedImageArray[origin[0] - 1 : clipSize[0] + 1,
-                                          origin[1] - 1 : clipSize[1] + 1,
-                                          origin[2] - 1 : clipSize[2] + 1]
+        # Slide boundingVertics
+        print("slide : ", slide)
+        rotatedAndSlidedBoundingVertics = rotatedBoundingVertics + slide
+        print("rotatedAndSlidedBoundingVertics")
+        print(rotatedAndSlidedBoundingVertics.astype(int))
 
 
+        origin, clipSize = determineClipSize(rotatedAndSlidedBoundingVertics, inputLabelArray.shape)
+        print("origin : ", origin)
+        print("clipSize : ", clipSize)
 
-    pre = np.where(inputLabelArray > 0, True, False).sum()
-    post = np.where(rotatedLabelArray > 0, True, False).sum()
-
-    log = Path(args.log) / "failList.txt"
-    saveLabelPath = Path(args.savePath) / "label_right.mha"
-    saveImagePath = Path(args.savePath) / "image_right.mha"
-
-    if 0.99 < post / pre < 1.1:
-        print("Succeeded in clipping.")
-        saveImage(rotatedLabelArray, label, str(saveLabelPath))
-        saveImage(rotatedImageArray, img, str(saveImagePath))
-
-
-    else:
-        print("Failed to clip.")
-        print("Writing failed patient to {}".format(str(log)))
-        print("Done")
+        refCoords = makeRefCoords(inputLabelArray, affineMatrix)
+        print("redCoords shape : ", refCoords.shape)
         
+        print("Rotating image...")
+        rotatedLabelArray = rotateImageArray(inputLabelArray, refCoords, "nearest")
+        rotatedImageArray = rotateImageArray(inputImageArray, refCoords, "linear")
+
+        rotatedLabelArray = rotatedLabelArray[origin[0] - 1 : clipSize[0] + 1,
+                                              origin[1] - 1 : clipSize[1] + 1,
+                                              origin[2] - 1 : clipSize[2] + 1]
+
+        rotatedImageArray = rotatedImageArray[origin[0] - 1 : clipSize[0] + 1,
+                                              origin[1] - 1 : clipSize[1] + 1,
+                                              origin[2] - 1 : clipSize[2] + 1]
+
+
+
+        pre = np.where(inputLabelArray > 0, True, False).sum()
+        post = np.where(rotatedLabelArray > 0, True, False).sum()
+
+        log = Path(args.log) / "failList.txt"
+        saveLabelPath = Path(args.savePath) / ("label_" + xxx + ".mha")
+        saveImagePath = Path(args.savePath) / ("image_" + xxx + ".mha")
+
+        createParentPath(saveLabelPath)
+
+        if 0.99 < post / pre < 1.1:
+            print("Succeeded in clipping.")
+            saveImage(rotatedLabelArray, label, str(saveLabelPath))
+            saveImage(rotatedImageArray, img, str(saveImagePath))
+
+
+        else:
+            print("Failed to clip.")
+            print("Writing failed patient to {}".format(str(log)))
+            print("Done")
+            
 
 
 if __name__=="__main__":
