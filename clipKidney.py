@@ -2,7 +2,7 @@ import SimpleITK as sitk
 import numpy as np
 from pyobb.obb import OBB
 from functions import saveImage, printchk, createParentPath
-from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, rotateImageArray, reverseImage, Resizing
+from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, transformImageArray, reverseImage, Resizing
 import argparse
 from pathlib import Path
 
@@ -95,13 +95,15 @@ def main(args):
         origin, clipSize = determineClipSize(rotatedAndSlidedBoundingVertics, inputLabelArray.shape)
         print("origin : ", origin)
         print("clipSize : ", clipSize)
-
-        refCoords = makeRefCoords(inputLabelArray, affineMatrix)
+        
+        # For affine transformation, make inverse matrix
+        invAffine = np.linalg.inv(affineMatrix)
+        refCoords = makeRefCoords(inputLabelArray, invAffine)
         print("redCoords shape : ", refCoords.shape)
         
         print("Rotating image...")
-        rotatedLabelArray = rotateImageArray(inputLabelArray, refCoords, "nearest")
-        rotatedImageArray = rotateImageArray(inputImageArray, refCoords, "linear")
+        rotatedLabelArray = transformImageArray(inputLabelArray, refCoords, "nearest")
+        rotatedImageArray = transformImageArray(inputImageArray, refCoords, "linear")
 
         rotatedLabelArray = rotatedLabelArray[origin[0] - 1 : clipSize[0] + 1,
                                               origin[1] - 1 : clipSize[1] + 1,
@@ -142,33 +144,43 @@ def main(args):
             print("Writing failed patient to {}".format(str(log)))
             print("Done")
     
-    
-#     if (Path(args.savePath) / "label_right.mha").exists() and (Path(args.savePath) / "label_left.mha").exists():
-#         rightLabelPath = Path(args.savePath) / "label_right.mha"
-#         rightImagePath = Path(args.savePath) / "image_right.mha"
-#         leftLabelPath = Path(args.savePath) / "label_left.mha"
-#         leftImagePath = Path(args.savePath) / "image_left.mha"
+    # Match one kidney shape with the other one.
+    if (Path(args.savePath) / "label_right.mha").exists() and (Path(args.savePath) / "label_left.mha").exists():
+        rightLabelPath = Path(args.savePath) / "label_right.mha"
+        rightImagePath = Path(args.savePath) / "image_right.mha"
+        leftLabelPath = Path(args.savePath) / "label_left.mha"
+        leftImagePath = Path(args.savePath) / "image_left.mha"
         
-#         rightLabel = sitk.ReadImage(str(rightLabelPath))
-#         rightImage = sitk.ReadImage(str(rightImagePath))
-#         leftLabel = sitk.ReadImage(str(leftLabelPath))
-#         leftImage = sitk.ReadImage(str(leftImagePath))
+        rightLabel = sitk.ReadImage(str(rightLabelPath))
+        rightImage = sitk.ReadImage(str(rightImagePath))
+        leftLabel = sitk.ReadImage(str(leftLabelPath))
+        leftImage = sitk.ReadImage(str(leftImagePath))
         
-#         rightLabelTransformed = Resizing(rightLabel, leftLabel, is_label=True)
-#         rightImageTransformed = Resizing(rightImage, leftImage)
-#         leftLabelTransformed = Resizing(leftLabel, rightLabel, is_label=True)
-#         leftImageTransformed = Resizing(leftImage, rightImage)
+        rightLabelArray  = sitk.GetArrayFromImage(rightLabel)
+        rightImageArray = sitk.GetArrayFromImage(rightImage)
+        leftLabelArray = sitk.GetArrayFromImage(leftLabel)
+        leftImageArray = sitk.GetArrayFromImage(leftImage)
         
-#         saveRightLabelTransformedPath = Path(args.savePath) / ("label_right_transformed.mha")
-#         saveRightImageTransformedPath = Path(args.savePath) / ("image_right_transformed.mha")
-#         saveLeftLabelTransformedPath = Path(args.savePath) / ("label_left_transformed.mha")
-#         saveLeftImageTransformedPath = Path(args.savePath) / ("image_left_transformed.mha")
+        
+        rightLabelTransformedArray = Resizing(rightLabelArray, leftLabelArray,"nearest")
+        rightImageTransformedArray = Resizing(rightImageArray, leftImageArray, "linear")
+        leftLabelTransformedArray = Resizing(leftLabelArray, rightLabelArray,"nearest")
+        leftImageTransformedArray = Resizing(leftImageArray, rightImageArray, "linear")
+        
+        saveRightLabelTransformedPath = Path(args.savePath) / ("label_right_transformed.mha")
+        saveRightImageTransformedPath = Path(args.savePath) / ("image_right_transformed.mha")
+        saveLeftLabelTransformedPath = Path(args.savePath) / ("label_left_transformed.mha")
+        saveLeftImageTransformedPath = Path(args.savePath) / ("image_left_transformed.mha")
+        
+        rightLabelTransformed = sitk.GetImageFromArray(rightLabelTransformedArray)
+        rightImageTransformed = sitk.GetImageFromArray(rightImageTransformedArray)
+        leftLabelTransformed = sitk.GetImageFromArray(leftLabelTransformedArray)
+        leftImageTransformed = sitk.GetImageFromArray(leftImageTransformedArray)
 
-
-#         saveImage(rightLabelTransformed, rightLabel, str(saveRightLabelTransformedPath))
-#         saveImage(rightImageTransformed, rightImage, str(saveRightImageTransformedPath))
-#         saveImage(leftLabelTransformed, leftLabel, str(saveLeftLabelTransformedPath))
-#         saveImage(leftImageTransformed, leftImage, str(saveLeftImageTransformedPath))
+        saveImage(rightLabelTransformed, rightLabel, str(saveRightLabelTransformedPath))
+        saveImage(rightImageTransformed, rightImage, str(saveRightImageTransformedPath))
+        saveImage(leftLabelTransformed, leftLabel, str(saveLeftLabelTransformedPath))
+        saveImage(leftImageTransformed, leftImage, str(saveLeftImageTransformedPath))
 
 
 

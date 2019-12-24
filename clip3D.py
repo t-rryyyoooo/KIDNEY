@@ -331,15 +331,12 @@ def makeRefCoords(imgArray, rotationMatrix):
     x, y, z = np.mgrid[:SL, :CL, :AL]
     dummyArray = np.stack([x, y, z, np.ones((SL, CL, AL))], axis=-1)
     
-    # For affine transformation, make inverse matrix
-    invAffine = np.linalg.inv(rotationMatrix)
-    
     # Caluculate the coordinates before conversion that each pixel after conversion should refer to
-    refCoords = np.einsum('ijkm, lm->ijkl', dummyArray, invAffine)
+    refCoords = np.einsum('ijkm, lm->ijkl', dummyArray, rotationMatrix)
     
     return refCoords[...,:3]
 
-def rotateImageArray(imgArray, refCoords, interpolation):
+def transformImageArray(imgArray, refCoords, interpolation):
     if interpolation == "nearest":
         refCoordsNearest = np.where(refCoords > 0, refCoords + 0.5, refCoords - 0.5).astype(int)
         refCoordsNearest = clipXYZ(refCoordsNearest, imgArray.shape)
@@ -427,40 +424,19 @@ def reverseImage(imgArray):
     
     return reverseImgArray
 
-def Resizing(source, ref, is_label=False):
-    print("source size: ", source.GetSize())
-    print("ref size: ", ref.GetSize())
+def Resizing(source, ref, initerpolation):
+    magnification = np.array(ref.shape) / np.array(source.shape)
+    print("magnification : ", magnification)
+    print("Transorm source image From {} shape into {} shape".format(source.shape, ref.shape))
+    zoomMatrix = np.array([[1 / magnification[0], 0, 0, 0], 
+                           [0, 1 / magnification[1], 0, 0], 
+                           [0, 0, 1 / magnification[2], 0],
+                           [0, 0, 0, 1]])
     
-    argSourceShape = np.argsort(source.GetSize())
-    argRefShape = np.argsort(ref.GetSize())
-    #print("argSource : ", argSourceShape)
-    #print("argRef : ", argRefShape)
+    refCoords = makeRefCoords(ref, zoomMatrix)
     
-    outputSize = np.array(ref.GetSize())[argSourceShape[argRefShape]].tolist()
-
-    print("outputSize : ", outputSize)
-    resizer = sitk.ResampleImageFilter()
+    zoomedArray =  transformImageArray(source, refCoords, initerpolation)
     
-    if source.GetNumberOfComponentsPerPixel() == 1:
-        minmax = sitk.MinimumMaximumImageFilter()
-        minmax.Execute(source)
-        minval = minmax.GetMinimum()
-    else:
-        minval = None
-        
-    if minval is not None:
-
-        resizer.SetDefaultPixelValue(minval)
-
-    resizer.SetSize(outputSize)
-
-    resizer.SetOutputOrigin(source.GetOrigin())
-    resizer.SetOutputDirection(source.GetDirection())
-    resizer.SetOutputSpacing(source.GetSpacing())
+    print("zoomedArray shape : ", zoomedArray.shape)
     
-    if is_label:
-        resizer.SetInterpolator(sitk.sitkNearestNeighbor)
-    
-    resizer = resizer.Execute(source)
-    
-    return resizer
+    return zoomedArray
