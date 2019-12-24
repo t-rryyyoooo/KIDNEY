@@ -13,6 +13,7 @@ def ParseArgs():
     parser.add_argument("imagePath", help="/vmlab/Desktop/data/kit19/case_00000")
     parser.add_argument("savePath", help="/vmlab/data/box/case_00000")
     parser.add_argument("--log", help="To write patients failed to clip", default="log")
+    parser.add_argument("--extension", help="nii.gz", default='nii.gz')
 
     args = parser.parse_args()
 
@@ -119,8 +120,8 @@ def main(args):
         post = np.where(rotatedLabelArray > 0, True, False).sum()
 
         log = Path(args.log) / "failList.txt"
-        saveLabelPath = Path(args.savePath) / ("label_" + xxx + ".mha")
-        saveImagePath = Path(args.savePath) / ("image_" + xxx + ".mha")
+        saveLabelPath = Path(args.savePath) / ("label_" + xxx + "." + args.extension)
+        saveImagePath = Path(args.savePath) / ("image_" + xxx + "." + args.extension)
 
         createParentPath(saveLabelPath)
         
@@ -145,11 +146,11 @@ def main(args):
             print("Done")
     
     # Match one kidney shape with the other one.
-    if (Path(args.savePath) / "label_right.mha").exists() and (Path(args.savePath) / "label_left.mha").exists():
-        rightLabelPath = Path(args.savePath) / "label_right.mha"
-        rightImagePath = Path(args.savePath) / "image_right.mha"
-        leftLabelPath = Path(args.savePath) / "label_left.mha"
-        leftImagePath = Path(args.savePath) / "image_left.mha"
+    if (Path(args.savePath) / ("label_right." + args.extension)).exists() and (Path(args.savePath) / ("label_left." + args.extension)).exists():
+        rightLabelPath = Path(args.savePath) / ("label_right." + args.extension)
+        rightImagePath = Path(args.savePath) / ("image_right." + args.extension)
+        leftLabelPath = Path(args.savePath) / ("label_left." + args.extension)
+        leftImagePath = Path(args.savePath) / ("image_left." + args.extension)
         
         rightLabel = sitk.ReadImage(str(rightLabelPath))
         rightImage = sitk.ReadImage(str(rightImagePath))
@@ -167,10 +168,10 @@ def main(args):
         leftLabelTransformedArray = Resizing(leftLabelArray, rightLabelArray,"nearest")
         leftImageTransformedArray = Resizing(leftImageArray, rightImageArray, "linear")
         
-        saveRightLabelTransformedPath = Path(args.savePath) / ("label_right_transformed.mha")
-        saveRightImageTransformedPath = Path(args.savePath) / ("image_right_transformed.mha")
-        saveLeftLabelTransformedPath = Path(args.savePath) / ("label_left_transformed.mha")
-        saveLeftImageTransformedPath = Path(args.savePath) / ("image_left_transformed.mha")
+        saveRightLabelTransformedPath = Path(args.savePath) / ("label_right_transformed." + args.extension)
+        saveRightImageTransformedPath = Path(args.savePath) / ("image_right_transformed." + args.extension)
+        saveLeftLabelTransformedPath = Path(args.savePath) / ("label_left_transformed." + args.extension)
+        saveLeftImageTransformedPath = Path(args.savePath) / ("image_left_transformed." + args.extension)
         
         rightLabelTransformed = sitk.GetImageFromArray(rightLabelTransformedArray)
         rightImageTransformed = sitk.GetImageFromArray(rightImageTransformedArray)
