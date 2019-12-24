@@ -14,6 +14,6 @@ do
 	echo $save
 
 	python3 clipKidney.py ${data} ${save}
-	echo "case_00{number} done."
+	echo "case_00${number} done."
 
 done
