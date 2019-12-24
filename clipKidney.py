@@ -2,7 +2,7 @@ import SimpleITK as sitk
 import numpy as np
 from pyobb.obb import OBB
 from functions import saveImage, printchk, createParentPath
-from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, rotateImageArray
+from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, rotateImageArray, reverseImage, Resizing
 import argparse
 from pathlib import Path
 
@@ -121,18 +121,55 @@ def main(args):
         saveImagePath = Path(args.savePath) / ("image_" + xxx + ".mha")
 
         createParentPath(saveLabelPath)
+        
+        # reverse right image
+        if xxx == "right":
+            print("It is the right kidney which should be reversed.")
+            rotatedLabelArray = reverseImage(rotatedLabelArray)
+            rotatedImageArray = reverseImage(rotatedImageArray)
 
         if 0.99 < post / pre < 1.1:
             print("Succeeded in clipping.")
-            saveImage(rotatedLabelArray, label, str(saveLabelPath))
-            saveImage(rotatedImageArray, img, str(saveImagePath))
+            rotatedLabel = sitk.GetImageFromArray(rotatedLabelArray)
+            rotatedImage = sitk.GetImageFromArray(rotatedImageArray)
+            
+            saveImage(rotatedLabel, label, str(saveLabelPath))
+            saveImage(rotatedImage, img, str(saveImagePath))
 
 
         else:
             print("Failed to clip.")
             print("Writing failed patient to {}".format(str(log)))
             print("Done")
-            
+    
+    
+#     if (Path(args.savePath) / "label_right.mha").exists() and (Path(args.savePath) / "label_left.mha").exists():
+#         rightLabelPath = Path(args.savePath) / "label_right.mha"
+#         rightImagePath = Path(args.savePath) / "image_right.mha"
+#         leftLabelPath = Path(args.savePath) / "label_left.mha"
+#         leftImagePath = Path(args.savePath) / "image_left.mha"
+        
+#         rightLabel = sitk.ReadImage(str(rightLabelPath))
+#         rightImage = sitk.ReadImage(str(rightImagePath))
+#         leftLabel = sitk.ReadImage(str(leftLabelPath))
+#         leftImage = sitk.ReadImage(str(leftImagePath))
+        
+#         rightLabelTransformed = Resizing(rightLabel, leftLabel, is_label=True)
+#         rightImageTransformed = Resizing(rightImage, leftImage)
+#         leftLabelTransformed = Resizing(leftLabel, rightLabel, is_label=True)
+#         leftImageTransformed = Resizing(leftImage, rightImage)
+        
+#         saveRightLabelTransformedPath = Path(args.savePath) / ("label_right_transformed.mha")
+#         saveRightImageTransformedPath = Path(args.savePath) / ("image_right_transformed.mha")
+#         saveLeftLabelTransformedPath = Path(args.savePath) / ("label_left_transformed.mha")
+#         saveLeftImageTransformedPath = Path(args.savePath) / ("image_left_transformed.mha")
+
+
+#         saveImage(rightLabelTransformed, rightLabel, str(saveRightLabelTransformedPath))
+#         saveImage(rightImageTransformed, rightImage, str(saveRightImageTransformedPath))
+#         saveImage(leftLabelTransformed, leftLabel, str(saveLeftLabelTransformedPath))
+#         saveImage(leftImageTransformed, leftImage, str(saveLeftImageTransformedPath))
+
 
 
 if __name__=="__main__":

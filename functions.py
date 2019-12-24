@@ -185,8 +185,8 @@ def advancedSettings(xlabel, ylabel, fontsize=20):
     
     return 
 
-def saveImage(saveImgArray, img, savePath):
-    saveImg = sitk.GetImageFromArray(saveImgArray)
+def saveImage(saveImg, img, savePath):
+    #saveImg = sitk.GetImageFromArray(saveImgArray)
     saveImg.SetDirection(img.GetDirection())
     saveImg.SetOrigin(img.GetOrigin())
     saveImg.SetSpacing(img.GetSpacing())
@@ -203,3 +203,16 @@ def printchk(x):
             break
             
     return 
+
+def CenterOfGravity(imgArray):
+    y, x, z = imgArray.shape
+    
+    Y, X, Z = np.mgrid[:y, :x, :z]
+    
+    Sum = np.where(imgArray > 0, True, False).sum()
+    
+    Ax = np.sum(imgArray * X) / Sum
+    Ay = np.sum(imgArray * Y) / Sum
+    Az = np.sum(imgArray * Z) / Sum
+    
+    return np.array([Ay, Ax, Az])

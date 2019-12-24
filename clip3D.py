@@ -5,6 +5,7 @@ from math import cos as cos
 from math import sin as sin
 from math import atan2 as atan2
 from math import pi
+import SimpleITK as sitk
 
 
 def searchBound(labelArray, axis):
@@ -412,3 +413,54 @@ def determineSlide(boundindVertics, rotationMatrix, imgArray):
                              [0, 0, 0, 1]])
     
     return slide, affineMatrix
+
+def reverseImage(imgArray):
+    arg = np.argsort(imgArray.shape)[::-1]
+    print(arg)
+
+    if arg[1] == 0:
+        reverseImgArray = imgArray[::-1, :, :]
+    elif arg[1] == 1:
+        reverseImgArray = imgArray[:, ::-1, :]
+    else:
+        reverseImgArray = imgArray[:, :, ::-1]
+    
+    return reverseImgArray
+
+def Resizing(source, ref, is_label=False):
+    print("source size: ", source.GetSize())
+    print("ref size: ", ref.GetSize())
+    
+    argSourceShape = np.argsort(source.GetSize())
+    argRefShape = np.argsort(ref.GetSize())
+    #print("argSource : ", argSourceShape)
+    #print("argRef : ", argRefShape)
+    
+    outputSize = np.array(ref.GetSize())[argSourceShape[argRefShape]].tolist()
+
+    print("outputSize : ", outputSize)
+    resizer = sitk.ResampleImageFilter()
+    
+    if source.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(source)
+        minval = minmax.GetMinimum()
+    else:
+        minval = None
+        
+    if minval is not None:
+
+        resizer.SetDefaultPixelValue(minval)
+
+    resizer.SetSize(outputSize)
+
+    resizer.SetOutputOrigin(source.GetOrigin())
+    resizer.SetOutputDirection(source.GetDirection())
+    resizer.SetOutputSpacing(source.GetSpacing())
+    
+    if is_label:
+        resizer.SetInterpolator(sitk.sitkNearestNeighbor)
+    
+    resizer = resizer.Execute(source)
+    
+    return resizer
