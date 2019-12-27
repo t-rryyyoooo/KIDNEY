@@ -346,40 +346,35 @@ def transformImageArray(imgArray, refCoords, interpolation):
 
     if interpolation == "linear":
         # Caluculate 8 vertics around
-        lc = [0]*8
-        lc[0] = refCoords.astype(int)
-        lc[1] = lc[0] + [1, 0, 0]
-        lc[2] = lc[0] + [0, 1, 0] 
-        lc[3] = lc[0] + [0, 0, 1]
-        lc[4] = lc[0] + [1, 1, 0]
-        lc[5] = lc[0] + [1, 0, 1]
-        lc[6] = lc[0] + [0, 1, 1]
-        lc[7] = lc[0] + [1, 1, 1]
-        linearCoords = np.stack(lc, axis=0)
+        linearCoords = [0]*8
+        linearCoords[0] = refCoords.astype(int)
+        linearCoords[1] = linearCoords[0] + [1, 0, 0]
+        linearCoords[2] = linearCoords[0] + [0, 1, 0] 
+        linearCoords[3] = linearCoords[0] + [0, 0, 1]
+        linearCoords[4] = linearCoords[0] + [1, 1, 0]
+        linearCoords[5] = linearCoords[0] + [1, 0, 1]
+        linearCoords[6] = linearCoords[0] + [0, 1, 1]
+        linearCoords[7] = linearCoords[0] + [1, 1, 1]
+        linearCoords = np.stack(linearCoords, axis=0)
         
         diff = (refCoords - linearCoords[0,:,:,:,:])
-        alpha = diff[..., 0]
-        beta = diff[..., 1]
-        gamma = diff[..., 2]
         
         #Caluculate weights
-        lw = [0] * 8
-        lw[0] = (1 - alpha) * (1 - beta) * (1 - gamma)
-        lw[1] = alpha * (1 - beta) * (1 - gamma)
-        lw[2] = (1 - alpha) * beta * (1 - gamma)
-        lw[3] = (1 - alpha) * (1 - beta) * gamma
-        lw[4] = alpha * beta * (1 - gamma)
-        lw[5] = alpha * (1 - beta) * gamma
-        lw[6] = (1 - alpha) * beta * gamma
-        lw[7] = alpha * beta * gamma
+        linearWeight = [0] * 8
+        linearWeight[0] = (1 - diff[...,0]) * (1 - diff[...,1]) * (1 - diff[...,2])
+        linearWeight[1] = diff[...,0] * (1 - diff[...,1]) * (1 - diff[...,2])
+        linearWeight[2] = (1 - diff[...,0]) * diff[...,1] * (1 - diff[...,2])
+        linearWeight[3] = (1 - diff[...,0]) * (1 - diff[...,1]) * diff[...,2]
+        linearWeight[4] = diff[...,0] * diff[...,1] * (1 - diff[...,2])
+        linearWeight[5] = diff[...,0] * (1 - diff[...,1]) * diff[...,2]
+        linearWeight[6] = (1 - diff[...,0]) * diff[...,1] * diff[...,2]
+        linearWeight[7] = diff[...,0] * diff[...,1] * diff[...,2]
 
-        linearWeight = np.stack(lw, axis=-1)
+        linearWeight = np.stack(linearWeight, axis=-1)
         
         linearCoords = clipXYZ(linearCoords, imgArray.shape)
-        x = linearCoords[:,:,:,:,0]
-        y = linearCoords[:,:,:,:,1]
-        z = linearCoords[:,:,:,:,2]
-        rotatedImageArray = np.einsum('ijkm, mijk->ijk', linearWeight, imgArray[x, y, z])
+        rotatedImageArray = np.einsum('ijkm, mijk->ijk', linearWeight,
+                imgArray[linearCoords[...,0], linearCoords[...,1], linearCoords[...,2]])
         
     return rotatedImageArray
 
