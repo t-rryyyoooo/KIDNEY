@@ -16,6 +16,6 @@ do
     echo $slice
     echo $suffix
 
-    python3 marge.py ${slice} ${SAVE} ${suffix}
+    python3 merge.py ${slice} ${SAVE} ${suffix}
 
 done
