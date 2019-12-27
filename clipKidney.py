@@ -14,15 +14,18 @@ def ParseArgs():
     parser.add_argument("savePath", help="/vmlab/data/box/case_00000")
     parser.add_argument("--log", help="To write patients failed to clip", default="log")
     parser.add_argument("--extension", help="nii.gz", default='nii.gz')
-
+    parser.add_argument("--prefix", help="resampled_", default="resampled_")
     args = parser.parse_args()
 
     return args
 
 def main(args):
     # Read image
-    labelPath = Path(args.imagePath) / "segmentation.nii.gz"
-    imagePath = Path(args.imagePath) / "imaging.nii.gz"
+    labelPath = Path(args.imagePath) / (args.prefix + "segmentation.nii.gz")
+    imagePath = Path(args.imagePath) / (args.prefix + "imaging.nii.gz")
+    print("Reading {}...".format(str(labelPath)))
+    print("Reading {}...".format(str(imagePath)))
+
 
     img = sitk.ReadImage(str(imagePath))
     imageArray = sitk.GetArrayFromImage(img)
