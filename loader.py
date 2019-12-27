@@ -3,6 +3,7 @@ import numpy as np
 import SimpleITK as sitk
 import random
 import tensorflow as tf
+from pathlib import Path
 
 def ReadSliceDataList(filename):
     datalist = []
@@ -12,6 +13,44 @@ def ReadSliceDataList(filename):
             datalist.append((imagefile, labelfile))
 
     return datalist
+
+### Ignore upper and lower limiits slices
+# def ReadSliceDataList3ch_1ch(filename):
+#     datalist = []
+#     with open(filename) as f:
+#         for line in f:
+#             labelfile, imagefile = line.strip().split('\t')
+#             datalist.append((imagefile, labelfile))
+            
+            
+#     pathDicImg = {}#{~/case_00000/image0 : ~/case_00000/image0_00.mha}
+#     labellist = {}
+#     pathList = []#3枚ごとにまとめられたリスト(image,label)
+
+#     #パスを同じ腎臓ごとにまとめる
+#     for path in datalist:
+#         dicPathI, filePathI = os.path.split(path[0])
+#         fI,nameI = filePathI.split("_")
+#         fPathI = os.path.join(dicPathI, fI)
+        
+
+#         if fPathI not in pathDicImg:
+#             pathDicImg[fPathI] = []
+#             labellist[fPathI] = []
+
+#         pathDicImg[fPathI].append(path[0])
+
+#         labellist[fPathI].append(path[1])
+
+#     #同じ腎臓の中で、あるスライスと前後2枚をくっつける(path)
+
+#     for (keyI, valueI),(labkey, labvalue) in zip(pathDicImg.items(), labellist.items()):
+#         valueI = sorted(valueI)
+#         labvalue = sorted(labvalue)
+#         for x in range(1,len(valueI)-1):
+#             pathList.append((valueI[x-1:x+2], labvalue[x]))
+   
+#     return pathList
 
 def ReadSliceDataList3ch_1ch(filename):
     datalist = []
@@ -45,10 +84,91 @@ def ReadSliceDataList3ch_1ch(filename):
     for (keyI, valueI),(labkey, labvalue) in zip(pathDicImg.items(), labellist.items()):
         valueI = sorted(valueI)
         labvalue = sorted(labvalue)
-        for x in range(1,len(valueI)-1):
-            pathList.append((valueI[x-1:x+2], labvalue[x]))
+        for x in range(len(valueI)):
+            if x==0:
+                
+                pathList.append(([None] + valueI[x:x+2], labvalue[x]))
+            elif x == (len(valueI) - 1):
+                pathList.append((valueI[x-1:x+1] + [None], labvalue[x]))
+            
+            else:
+                pathList.append((valueI[x-1:x+2], labvalue[x]))
    
     return pathList
+
+def makeDict(datalist):
+    imageDict = {}#{~/case_00000/image0 : ~/case_00000/image0_00.mha}
+    labelDict = {}
+    #パスを同じ腎臓ごとにまとめる
+    for data in datalist:
+        parentPath = Path(data[0]).parent        
+        
+        if str(parentPath) not in imageDict:
+            imageDict[str(parentPath)] = []
+            labelDict[str(parentPath)] = []
+
+        imageDict[str(parentPath)].append(data[0])
+        labelDict[str(parentPath)].append(data[1])
+    
+    return imageDict, labelDict
+
+def make3ch_1chList(imageList, labelList):
+    pathList = []
+    length = len(imageList)
+    
+    imageList = sorted(imageList)
+    labelPath = sorted(labelList)
+    
+    for x in range(length):
+        if x == 0:
+            pathList.append(([None] + imageList[x : x + 2], labelList[x]))
+        
+        elif x == length - 1:
+            pathList.append((imageList[x - 1 : x + 1] + [None], labelList[x]))
+        
+        else:
+            pathList.append((imageList[x - 1 : x + 2], labelList[x]))
+        
+    return pathList
+
+def ReadSliceDataList6ch_1ch(filename1, filename2):
+    dataList1 = []
+    dataList2 = []
+    
+    pathList = []
+    #Read datalist
+    with open(filename1) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            dataList1.append((imagefile, labelfile))
+    
+    with open(filename2) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            dataList2.append((imagefile, labelfile))
+
+    imageDict1, labelDict1 = makeDict(dataList1)
+    imageDict2, labelDict2 = makeDict(dataList2)
+
+    for id1 in imageDict1.keys():
+        for id2 in imageDict2.keys():
+            lastDict1 = id1.split("/")
+            lastDict2 = id2.split("/")
+            
+            if lastDict1[:-2] == lastDict2[:-2]:
+                if lastDict1 != lastDict2:
+                    pathList1 = make3ch_1chList(imageDict1[id1], labelDict1[id1])
+                    pathList2 = make3ch_1chList(imageDict2[id2], labelDict2[id2])
+
+                    for path1, path2 in zip(pathList1, pathList2):
+                        imageList = path1[0] + path2[0]
+                        labelList = path1[1]
+
+                        pathList.append((imageList, labelList))
+        
+    return pathList
+
+
 
 def ImportImage(filename):
     image = sitk.ReadImage(filename)
@@ -151,6 +271,48 @@ def Transforming3d(image, affine, interpolator, minval):
 
     return transformed_a
 
+###Ignore upper and lower limit slices
+# def ImportImageTransformed3d(imagefile, labelfile):
+#     translationrange = 0 # [mm]
+#     rotrange = 15 # [deg]
+#     shearrange = 0
+#     scalerange = 0.05
+
+#     # Affine parameters
+#     translation = np.random.uniform(-translationrange, translationrange, 2)
+#     rotation = np.radians(np.random.uniform(-rotrange, rotrange))
+#     shear = np.random.uniform(-shearrange, shearrange, 2)
+#     scale = np.random.uniform(1-scalerange, 1+scalerange)
+    
+#     #label(1ch)
+#     label = sitk.ReadImage(labelfile)
+#     center = np.array(label.GetSize()) * np.array(label.GetSpacing()) / 2
+
+    
+#     affine = Affine(translation, rotation, scale, shear, center)
+#     transformed_label = Transforming3d(label, affine, sitk.sitkNearestNeighbor, 0)
+#     labelarry = sitk.GetArrayFromImage(transformed_label)
+    
+#     #image(3ch)
+#     check = False
+#     for img in imagefile:
+#         image = sitk.ReadImage(img)
+#         minval = GetMinimumValue(image)
+
+#         transformed_image = Transforming3d(image, affine, sitk.sitkLinear, minval)
+#         imagearry = sitk.GetArrayFromImage(transformed_image)
+        
+#         if not check:
+#             check = True
+#             stackedArray = imagearry
+
+#         else:
+#             stackedArray = np.dstack([stackedArray, imagearry])
+    
+    
+
+#     return stackedArray, labelarry
+
 
 def ImportImageTransformed3d(imagefile, labelfile):
     translationrange = 0 # [mm]
@@ -176,11 +338,15 @@ def ImportImageTransformed3d(imagefile, labelfile):
     #image(3ch)
     check = False
     for img in imagefile:
-        image = sitk.ReadImage(img)
-        minval = GetMinimumValue(image)
+        if img is None:
+            imagearry = np.zeros_like(labelarry) - 1024.0
+            minval = -1024.0
+        else:
+            image = sitk.ReadImage(img)
+            minval = GetMinimumValue(image)
 
-        transformed_image = Transforming3d(image, affine, sitk.sitkLinear, minval)
-        imagearry = sitk.GetArrayFromImage(transformed_image)
+            transformed_image = Transforming3d(image, affine, sitk.sitkLinear, minval)
+            imagearry = sitk.GetArrayFromImage(transformed_image)
         
         if not check:
             check = True
