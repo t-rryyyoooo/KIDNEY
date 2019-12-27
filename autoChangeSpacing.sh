@@ -15,6 +15,16 @@ do
 	echo $save
 
 	python3 changeSpacing.py ${data} ${save}
-	echo "case_00${number} done."
+
+
+	if [ $? -eq 0 ]; then
+		
+		echo "case_00${number} done."
+	
+	else
+		echo "case_00${number}" >> fail/changeSpacing.txt
+		echo "case_00${number} failed"
+	
+	fi
 
 done
