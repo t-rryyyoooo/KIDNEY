@@ -299,11 +299,14 @@ def clipXYZ(array, imgShape):
     Turn the minimun of array into 0 and the maximun of array into imgshape per axis. 
     
     '''
-    l =[]
     for i in range(3):
-        l.append(np.clip(array[...,i], 1, imgShape[i] - 1))
+        if check:
+            b = np.clip(array[..., x : x + 1], 1, imgShape[i] - 1)
+            check = False
+        else:
+            b = np.concatenate([b, np.clip(a[..., x : x + 1], 1, imgShape[i] - 1)], axis=-1)
     
-    return np.stack(l, axis=-1)
+    return b
 
 def determineClipSize(boundingVertics, imgShape, expansion=0):
     o = boundingVertics[0].astype(int)
@@ -411,13 +414,12 @@ def reverseImage(imgArray):
     print(arg)
 
     if arg[1] == 0:
-        reverseImgArray = imgArray[::-1, :, :]
+        return imgArray[::-1, :, :]
     elif arg[1] == 1:
-        reverseImgArray = imgArray[:, ::-1, :]
+        return imgArray[:, ::-1, :]
     else:
-        reverseImgArray = imgArray[:, :, ::-1]
+        return imgArray[:, :, ::-1]
     
-    return reverseImgArray
 
 def Resizing(source, ref, initerpolation):
     magnification = np.array(ref.shape) / np.array(source.shape)

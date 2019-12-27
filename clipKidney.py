@@ -5,6 +5,7 @@ from functions import saveImage, printchk, createParentPath
 from clip3D import searchBound, getSortedDistance, makeCompleteMatrix, determineSlide, determineClipSize, makeRefCoords, transformImageArray, reverseImage, Resizing
 import argparse
 from pathlib import Path
+import gc
 
 args = None
 
@@ -38,15 +39,19 @@ def main(args):
     print("endIndex : ", endIdx)
 
         # Divide the kidney into leftArray and rightArray
-    leftArray = labelArray[ : startIdx[1] - 1, :, :]
-    rightArray = labelArray[endIdx[0] + 1 : , :, :]
+    leftArray = np.copy(labelArray[ : startIdx[1] - 1, :, :])
+    rightArray = np.copy(labelArray[endIdx[0] + 1 : , :, :])
+
     print('leftArray shapes : ', leftArray.shape)
     print('rightArray shapes : ', rightArray.shape)
 
-    leftImgArray = imageArray[ : startIdx[1] - 1,:,:]
-    rightImgArray = imageArray[endIdx[0] + 1 : , :, :]
+    leftImgArray = np.copy(imageArray[ : startIdx[1] - 1,:,:])
+    rightImgArray = np.copy(imageArray[endIdx[0] + 1 : , :, :])
    
-    arrayDict = {"left" : [leftArray, leftImgArray], "right" : [rightArray, rightImgArray]}
+    arrayDict = {"left" : np.array([np.copy(leftArray), np.copy(leftImgArray)]), "right" : np.array([np.copy(rightArray), np.copy(rightImgArray)])}
+
+    del imageArray, labeArray, leftArray, leftImgArray, rightArray, rightImgArray
+    gc.collect()
 
     for xxx in ["left", "right"]:
         # Input array
