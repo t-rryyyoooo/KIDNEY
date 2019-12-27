@@ -1,3 +1,4 @@
+import gc
 import math
 import numpy as np
 from cut import caluculate_area
@@ -299,26 +300,30 @@ def clipXYZ(array, imgShape):
     Turn the minimun of array into 0 and the maximun of array into imgshape per axis. 
     
     '''
+    check = True
     for i in range(3):
         if check:
-            b = np.clip(array[..., x : x + 1], 1, imgShape[i] - 1)
+            b = np.clip(array[..., i : i + 1], 1, imgShape[i] - 1)
             check = False
         else:
-            b = np.concatenate([b, np.clip(a[..., x : x + 1], 1, imgShape[i] - 1)], axis=-1)
+            b = np.concatenate([b, np.clip(array[..., i : i + 1], 1, imgShape[i] - 1)], axis=-1)
     
     return b
 
 def determineClipSize(boundingVertics, imgShape, expansion=0):
     o = boundingVertics[0].astype(int)
-
+    
+    imgShape = np.array(imgShape) - 1
     o = o - expansion
-    o = clipXYZ(o, imgShape)
+    #o = clipXYZ(o, imgShape)
+    o = np.clip(o, 1, imgShape)
 
     c = sum(boundingVertics) - 3 * boundingVertics[0]
     c = (c + 1).astype(int)
 
     c = c + expansion
-    c = clipXYZ(c, imgShape)
+    #c = clipXYZ(c, imgShape)
+    c = np.clip(c, 1, imgShape)
 
     origin = np.where(o < c, o, c)
     clipSize = np.where(o < c, c, o)
@@ -340,9 +345,11 @@ def makeRefCoords(imgArray, rotationMatrix):
     return refCoords[...,:3]
 
 def transformImageArray(imgArray, refCoords, interpolation):
+    coordsLimits = np.array(imgArray.shape) - 1
     if interpolation == "nearest":
         refCoordsNearest = np.where(refCoords > 0, refCoords + 0.5, refCoords - 0.5).astype(int)
-        refCoordsNearest = clipXYZ(refCoordsNearest, imgArray.shape)
+        #refCoordsNearest = clipXYZ(refCoordsNearest, imgArray.shape)
+        refCoordsNearest = np.clip(refCoordsNearest, 1, coordsLimits)
         
         
         rotatedImageArray = imgArray[refCoordsNearest[...,0], refCoordsNearest[..., 1], refCoordsNearest[..., 2]]
@@ -350,18 +357,22 @@ def transformImageArray(imgArray, refCoords, interpolation):
     if interpolation == "linear":
         # Caluculate 8 vertics around
         linearCoords = [0]*8
-        linearCoords[0] = refCoords.astype(int)
-        linearCoords[1] = linearCoords[0] + [1, 0, 0]
-        linearCoords[2] = linearCoords[0] + [0, 1, 0] 
-        linearCoords[3] = linearCoords[0] + [0, 0, 1]
-        linearCoords[4] = linearCoords[0] + [1, 1, 0]
-        linearCoords[5] = linearCoords[0] + [1, 0, 1]
-        linearCoords[6] = linearCoords[0] + [0, 1, 1]
-        linearCoords[7] = linearCoords[0] + [1, 1, 1]
+        linearCoords[0] = np.clip(np.copy(refCoords.astype(int)), 1, coordsLimits)
+        linearCoords[1] = np.clip(linearCoords[0] + [1, 0, 0], 1, coordsLimits)
+        linearCoords[2] = np.clip(linearCoords[1] + [0, 1, 0], 1, coordsLimits)
+        linearCoords[3] = np.clip(linearCoords[0] + [0, 0, 1], 1, coordsLimits)
+        linearCoords[4] = np.clip(linearCoords[0] + [1, 1, 0], 1, coordsLimits)
+        linearCoords[5] = np.clip(linearCoords[0] + [1, 0, 1], 1, coordsLimits)
+        linearCoords[6] = np.clip(linearCoords[0] + [0, 1, 1], 1, coordsLimits)
+        linearCoords[7] = np.clip(linearCoords[0] + [1, 1, 1], 1, coordsLimits)
         linearCoords = np.stack(linearCoords, axis=0)
         
-        diff = (refCoords - linearCoords[0,:,:,:,:])
-        
+        diff = np.copy(refCoords - linearCoords[-1,:,:,:,:])
+
+        del refCoords
+        gc.collect()
+
+        #linearCoords = np.clip(linearCoords, 1, coordsLimits)
         #Caluculate weights
         linearWeight = [0] * 8
         linearWeight[0] = (1 - diff[...,0]) * (1 - diff[...,1]) * (1 - diff[...,2])
@@ -375,7 +386,7 @@ def transformImageArray(imgArray, refCoords, interpolation):
 
         linearWeight = np.stack(linearWeight, axis=-1)
         
-        linearCoords = clipXYZ(linearCoords, imgArray.shape)
+        #linearCoords = clipXYZ(linearCoords, imgArray.shape)
         rotatedImageArray = np.einsum('ijkm, mijk->ijk', linearWeight,
                 imgArray[linearCoords[...,0], linearCoords[...,1], linearCoords[...,2]])
         

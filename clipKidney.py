@@ -19,7 +19,6 @@ def ParseArgs():
     args = parser.parse_args()
 
     return args
-
 def main(args):
     # Read image
     labelPath = Path(args.imagePath) / (args.prefix + "segmentation.nii.gz")
@@ -50,7 +49,7 @@ def main(args):
    
     arrayDict = {"left" : np.array([np.copy(leftArray), np.copy(leftImgArray)]), "right" : np.array([np.copy(rightArray), np.copy(rightImgArray)])}
 
-    del imageArray, labeArray, leftArray, leftImgArray, rightArray, rightImgArray
+    del imageArray, labelArray, leftArray, leftImgArray, rightArray, rightImgArray
     gc.collect()
 
     for xxx in ["left", "right"]:
