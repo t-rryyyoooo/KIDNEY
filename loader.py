@@ -100,6 +100,7 @@ def makeDict(datalist):
     imageDict = {}#{~/case_00000/image0 : ~/case_00000/image0_00.mha}
     labelDict = {}
     #パスを同じ腎臓ごとにまとめる
+
     for data in datalist:
         parentPath = Path(data[0]).parent        
         
@@ -109,13 +110,12 @@ def makeDict(datalist):
 
         imageDict[str(parentPath)].append(data[0])
         labelDict[str(parentPath)].append(data[1])
-    
     return imageDict, labelDict
 
 def make3ch_1chList(imageList, labelList):
     pathList = []
     length = len(imageList)
-    
+
     imageList = sorted(imageList)
     labelPath = sorted(labelList)
     
@@ -154,18 +154,19 @@ def ReadSliceDataList6ch_1ch(filename1, filename2):
         for id2 in imageDict2.keys():
             lastDict1 = id1.split("/")
             lastDict2 = id2.split("/")
-            
+
             if lastDict1[:-2] == lastDict2[:-2]:
                 if lastDict1 != lastDict2:
                     pathList1 = make3ch_1chList(imageDict1[id1], labelDict1[id1])
                     pathList2 = make3ch_1chList(imageDict2[id2], labelDict2[id2])
+
 
                     for path1, path2 in zip(pathList1, pathList2):
                         imageList = path1[0] + path2[0]
                         labelList = path1[1]
 
                         pathList.append((imageList, labelList))
-        
+                        
     return pathList
 
 
