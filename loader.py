@@ -155,8 +155,8 @@ def ReadSliceDataList6ch_1ch(filename1, filename2):
             lastDict1 = id1.split("/")
             lastDict2 = id2.split("/")
 
-            if lastDict1[:-2] == lastDict2[:-2]:
-                if lastDict1 != lastDict2:
+            if lastDict1[-2] == lastDict2[-2]:
+                if lastDict1[-1] != lastDict2[-1]:
                     pathList1 = make3ch_1chList(imageDict1[id1], labelDict1[id1])
                     pathList2 = make3ch_1chList(imageDict2[id2], labelDict2[id2])
 

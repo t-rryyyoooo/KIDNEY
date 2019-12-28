@@ -57,8 +57,6 @@ def main(_):
     tf.compat.v1.keras.backend.set_session(sess)
 
     trainingdatalist = ReadSliceDataList6ch_1ch(*args.trainingdatafile)
-    print(trainingdatalist)
-    print(*args.trainingdatafile)
     testdatalist = None
     if args.testfile is not None:
         testdatalist = ReadSliceDataList6ch_1ch(*args.testfile)
