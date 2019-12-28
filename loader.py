@@ -178,17 +178,41 @@ def ImportImage(filename):
         imagearry = imagearry[..., np.newaxis]
     return imagearry
 
+# Ignore the upper and lower slices
+# def ImportImage3ch(pList):#[["case_00000/image0_00.mha", "case_00000/image0_01.mha", "case_00000/image0_02.mha"],\
+#                           # ["case_00000/image0_01.mha", "case_00000/image0_02.mha", "case_00000/image0_03.mha"]...]
+    
+#     check = False
+#     for x in pList:
+#         img = sitk.ReadImage(x)
+#         imgArray = sitk.GetArrayFromImage(img)
+        
+#         if not check:
+#             check = True
+#             stackedArray = imgArray
+
+#         else:
+#             stackedArray = np.dstack([stackedArray, imgArray])
+    
+    
+#     return stackedArray
 
 def ImportImage3ch(pList):#[["case_00000/image0_00.mha", "case_00000/image0_01.mha", "case_00000/image0_02.mha"],\
                           # ["case_00000/image0_01.mha", "case_00000/image0_02.mha", "case_00000/image0_03.mha"]...]
     
-    check = False
+    stacked = False
+    dummy = sitk.GetArrayFromImage(sitk.ReadImage(pList[1]))
+
     for x in pList:
-        img = sitk.ReadImage(x)
-        imgArray = sitk.GetArrayFromImage(img)
-        
-        if not check:
-            check = True
+        if x is None:
+            imgArray = np.zeros_like(dummy) - 1024.0
+            minval = -1024.0
+        else:
+            img = sitk.ReadImage(x)
+            imgArray = sitk.GetArrayFromImage(img)
+
+        if not stacked:
+            stacked = True
             stackedArray = imgArray
 
         else:
