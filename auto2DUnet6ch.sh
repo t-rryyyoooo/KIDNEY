@@ -21,6 +21,6 @@ echo $validation2
 echo $WEIGHT
 echo $HISTORY
 
-python3 buildUnet6chAugmentation.py ${training1} ${training2} ${WEIGHT} -t ${validation1} ${validation2} --history ${HISTORY} -b 10 -e 40 -g $id
+python3 buildUnet6chAugmentation.py ${training1} ${training2} ${WEIGHT} -t ${validation1} ${validation2} --history ${HISTORY} -b 15 -e 40 -g $id
 
 python3 mail.py $HISTORY
