@@ -14,6 +14,6 @@ echo $VALIDATION
 echo $WEIGHT
 echo $HISTORY
 
-python3 buildUnet3chAugmentation.py ${TRAINING} ${WEIGHT} -t ${VALIDATION} --history ${HISTORY} -b 10 -e 40 -g $id
+python3 buildUnet3chAugmentation.py ${TRAINING} ${WEIGHT} -t ${VALIDATION} --history ${HISTORY} -b 15 -e 40 -g $id
 
 python3 mail.py $HISTORY
