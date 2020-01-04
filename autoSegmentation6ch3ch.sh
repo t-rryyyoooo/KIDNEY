@@ -2,7 +2,7 @@
 
 #Input
 readonly DATA="$HOME/Desktop/data/box"
-readonly SAVE="$HOME/Desktop/data/slice/box"
+readonly SAVE="$HOME/Desktop/data/box"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_6ch_3ch.hdf5"
 
 NUMBERS=(019 023 054 093 096 123 127 136 141 153 188 191 201)
