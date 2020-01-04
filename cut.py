@@ -274,6 +274,9 @@ def inverse_image(roi, cutKidFragLabel, wh, center, angle,labelArray, i):
 
 
 def saveSliceImage256(imgArray, img, savePath, interpolation):
+
+    from clip3D import Resizing
+
     argMax = np.argmax(np.array(imgArray.shape))
     savePathList = []
     if argMax == 0:
@@ -346,6 +349,9 @@ def saveSliceImage256(imgArray, img, savePath, interpolation):
     return savePathList
 
 def sliceImage(imgArray, interpolation):
+
+    from clip3D import Resizing
+
     argMax = np.argmax(np.array(imgArray.shape))
     
     if argMax == 0:

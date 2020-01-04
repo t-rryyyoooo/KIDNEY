@@ -432,7 +432,7 @@ def reverseImage(imgArray):
         return imgArray[:, :, ::-1]
     
 
-def Resizing(source, ref, initerpolation):
+def Resizing(source, ref, interpolation):
     magnification = np.array(ref.shape) / np.array(source.shape)
     print("magnification : ", magnification)
     print("Transorm source image From {} shape into {} shape".format(source.shape, ref.shape))
@@ -443,7 +443,7 @@ def Resizing(source, ref, initerpolation):
     
     refCoords = makeRefCoords(ref, zoomMatrix)
     
-    zoomedArray =  transformImageArray(source, refCoords, initerpolation)
+    zoomedArray =  transformImageArray(source, refCoords, interpolation)
     
     print("zoomedArray shape : ", zoomedArray.shape)
     
