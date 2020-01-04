@@ -15,14 +15,11 @@ args = None
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("labelfile", help="Labelfile")
     parser.add_argument("imagefile", help="imagefile")
-    parser.add_argument("-l", "--layers", help="Number of laywers", default=5, type=int)
     #parser.add_argument("modelfile", help="U-net model file (*.yml).")
     parser.add_argument("modelweightfile", help="Trained model weights file (*.hdf5).")
     parser.add_argument("savepath", help="Segmented label file.(.mha)")
     parser.add_argument("alpha", default=0.0, type=float)
-    parser.add_argument("--paoutfile", help="The filename of the estimated probabilistic map file.")
     parser.add_argument("-g", "--gpuid", help="ID of GPU to be used for segmentation. [default=0]", default=0, type=int)
     parser.add_argument("-b", "--batchsize", help="Batch size", default=1, type=int)
 
