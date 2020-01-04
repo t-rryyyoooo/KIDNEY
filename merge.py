@@ -51,12 +51,12 @@ def main(args):
                 f = "validation"
                 list_file(slicePath, savePath + "/validation_" + args.suffix + ".txt")
         
+                print("case_00" + sx + " to " + f)
         else:
             print("Loading Error. " )
             sys.exit()
 
         
-        print("case_00" + sx + " to " + f)
 
 if __name__ == "__main__":
     args = parseArgs()
