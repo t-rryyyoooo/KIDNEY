@@ -345,20 +345,14 @@ def saveSliceImage256(imgArray, img, savePath, interpolation):
 
     return savePathList
 
-def sliceImage(imgArray, img, savePath, interpolation):
+def sliceImage(imgArray, interpolation):
     argMax = np.argmax(np.array(imgArray.shape))
-    savePathList = []
     
     if argMax == 0:
         axisSize = imgArray.shape[0]
         dummyArray = np.zeros((axisSize, 256, 256))
         resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
 
-        for x in range(axisSize):
-            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
-            savePathList.append(saveSlicePath)
-            createParentPath(saveSlicePath)
-            resizedImg = sitk.GetImageFromArray(resizedImgArray[x, :, :])
 
     elif argMax == 1:
         axisSize = imgArray.shape[1]
@@ -366,12 +360,6 @@ def sliceImage(imgArray, img, savePath, interpolation):
 
         resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
 
-        for x in range(axisSize):
-
-            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
-            savePathList.append(saveSlicePath)
-            createParentPath(saveSlicePath)
-            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, x, :])
 
     else:
         axisSize = imgArray.shape[2]
@@ -379,13 +367,6 @@ def sliceImage(imgArray, img, savePath, interpolation):
 
         resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
 
-        for x in range(axisSize):
-
-            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
-            savePathList.append(saveSlicePath)
-            createParentPath(saveSlicePath)
-            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, :, x])
-
-
-    return savePathList
+    
+    return resizedImgArray, argMax
 
