@@ -271,3 +271,121 @@ def inverse_image(roi, cutKidFragLabel, wh, center, angle,labelArray, i):
         iImg = iImg[::-1,:]
     
     return iImg
+
+
+def saveSliceImage256(imgArray, img, savePath, interpolation):
+    argMax = np.argmax(np.array(imgArray.shape))
+    savePathList = []
+    if argMax == 0:
+        axisSize = imgArray.shape[0]
+        dummyArray = np.zeros((axisSize, 256, 256))
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[x, :, :])
+
+            direction = (0.0, 1.0, -1.0, 0.0)
+            origin = img.GetOrigin()[:2]
+            spacing = img.GetSpacing()[:2]
+
+            resizedImg.SetDirection(direction)
+            resizedImg.SetOrigin(origin)
+            resizedImg.SetSpacing(spacing)
+
+            sitk.WriteImage(resizedImg, saveSlicePath)
+
+    elif argMax == 1:
+        axisSize = imgArray.shape[1]
+        dummyArray = np.zeros((256, axisSize, 256))
+
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, x, :])
+
+            direction = (0.0, 1.0, -1.0, 0.0)
+            origin = (img.GetOrigin()[0], img.GetOrigin()[2])
+            spacing = (img.GetSpacing()[0], img.GetSpacing()[2])
+
+            resizedImg.SetDirection(direction)
+            resizedImg.SetOrigin(origin)
+            resizedImg.SetSpacing(spacing)
+
+            sitk.WriteImage(resizedImg, saveSlicePath)
+
+    else:
+        axisSize = imgArray.shape[2]
+        dummyArray = np.zeros((256, 256, axisSize))
+
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, :, x])
+
+            direction = (0.0, 1.0, -1.0, 0.0)
+            origin = img.GetOrigin()[1:]
+            spacing = img.GetSpacing()[1:]
+
+            resizedImg.SetDirection(direction)
+            resizedImg.SetOrigin(origin)
+            resizedImg.SetSpacing(spacing)
+
+            sitk.WriteImage(resizedImg, saveSlicePath)
+
+    return savePathList
+
+def sliceImage(imgArray, img, savePath, interpolation):
+    argMax = np.argmax(np.array(imgArray.shape))
+    savePathList = []
+    
+    if argMax == 0:
+        axisSize = imgArray.shape[0]
+        dummyArray = np.zeros((axisSize, 256, 256))
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[x, :, :])
+
+    elif argMax == 1:
+        axisSize = imgArray.shape[1]
+        dummyArray = np.zeros((256, axisSize, 256))
+
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, x, :])
+
+    else:
+        axisSize = imgArray.shape[2]
+        dummyArray = np.zeros((256, 256, axisSize))
+
+        resizedImgArray = Resizing(imgArray, dummyArray, interpolation)
+
+        for x in range(axisSize):
+
+            saveSlicePath = savePath + str(x).zfill(3) + ".mha"
+            savePathList.append(saveSlicePath)
+            createParentPath(saveSlicePath)
+            resizedImg = sitk.GetImageFromArray(resizedImgArray[:, :, x])
+
+
+    return savePathList
+
