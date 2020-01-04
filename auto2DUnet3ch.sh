@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #Input
-readonly TRAINING="$HOME/Desktop/data/textList/training_original.txt"
-readonly VALIDATION="$HOME/Desktop/data/textList/validation_original.txt"
-readonly WEIGHT="$HOME/Desktop/data/modelweight/best_6ch_3ch.hdf5"
-readonly HISTORY="$HOME/Desktop/data/history/history_6ch_3ch.txt"
+readonly TRAINING="$HOME/Desktop/data/textList/training_host_original.txt"
+readonly VALIDATION="$HOME/Desktop/data/textList/validation_host_original.txt"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_3ch_selected.hdf5"
+readonly HISTORY="$HOME/Desktop/data/history/history_3ch_selected.txt"
 
 echo -n GPU_ID:
 read id
