@@ -14,8 +14,8 @@ args = None
 
 def ParseArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("imagefile", help="imagefile")
-    #parser.add_argument("modelfile", help="U-net model file (*.yml).")
+    parser.add_argument("sourcefile", help="imagefile")
+    parser.add_argument("reffile", help="imagefile")
     parser.add_argument("modelweightfile", help="Trained model weights file (*.hdf5).")
     parser.add_argument("savepath", help="Segmented label file.(.mha)")
     parser.add_argument("-g", "--gpuid", help="ID of GPU to be used for segmentation. [default=0]", default=0, type=int)
@@ -48,17 +48,21 @@ def main(_):
     savePath = os.path.expanduser(args.savepath)
     createParentPath(savePath)
 
-    imagefile = os.path.expanduser(args.imagefile)
+    sourcefile = os.path.expanduser(args.sourcefile)
+    reffile = os.path.expanduser(args.reffile)
     ## Read image
-    image = sitk.ReadImage(imagefile)
+    source= sitk.ReadImage(sourcefile)
+    ref= sitk.ReadImage(reffile)
 
-    imageArray = sitk.GetArrayFromImage(image)
+    sourceArray = sitk.GetArrayFromImage(source)
+    refArray = sitk.GetArrayFromImage(ref)
 
-    print("Whole size: ",imageArray.shape)
+    print("Whole size: ",sourceArray.shape)
 
-    originalShape = imageArray.shape
+    originalShape = sourceArray.shape
 
-    resizedImageArray, axis = sliceImage(imageArray, interpolation="linear")
+    resizedSourceArray, axis = sliceImage(sourceArray, interpolation="linear")
+    resizedRefArray, _ = sliceImage(refArray, interpolation="linear")
     
     segmentedArray = []
     if axis == 0:
@@ -68,15 +72,21 @@ def main(_):
 
         for x in range(length):
             if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[x, :, :], resizedImageArray[x + 1, :, :]])
+                sourceStack = [zero, resizedSourceArray[x, :, :], resizedSourceArray[x + 1, :, :]]
+                refStack = [zero, resizedRefArray[x, :, :], resizedRefArray[x + 1, :, :]]
 
             elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[x - 1, :, :], resizedImageArray[x, :, :], zero])
+                sourceStack = [resizedSourceArray[x - 1, :, :], resizedSourceArray[x, :, :], zero]
+                refStack = [resizedRefArray[x - 1, :, :], resizedRefArray[x, :, :], zero]
 
             else:
-                imageArray3ch = np.dstack([resizedImageArray[x - 1, :, :], resizedImageArray[x, :, :], resizedImageArray[x + 1, :, :]])
+                sourceStack = [resizedSourceArray[x - 1, :, :], resizedSourceArray[x, :, :], resizedSourceArray[x + 1, :, :]]
+                refStack = [resizedRefArray[x - 1, :, :], resizedRefArray[x, :, :], resizedRefArray[x + 1, :, :]]
 
             
+            stack = sourceStack + refStack
+            imageArray3ch = np.dstack(stack)
+
             imageArray3ch = imageArray3ch[np.newaxis,...]
             print('Shape of input shape: {}'.format(imageArray3ch.shape))
             
@@ -93,7 +103,7 @@ def main(_):
         print('SegmentedArray shape : {}'.format(segmentedArray.shape))
 
         segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
+        saveImage(segmented, source, savePath)
     
     if axis == 1:
         length = originalShape[1]
@@ -102,15 +112,21 @@ def main(_):
 
         for x in range(length):
             if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[:, x, :], resizedImageArray[:, x + 1, :]])
+                sourceStack = [zero, resizedSourceArray[:, x, :], resizedSourceArray[:, x + 1, :]]
+                refStack = [zero, resizedRefArray[:, x, :], resizedRefArray[:, x + 1, :]]
 
             elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[:, x - 1, :], resizedImageArray[:, x, :], zero])
+                sourceStack = [resizedSourceArray[:, x - 1, :], resizedSourceArray[:, x, :], zero]
+                refStack = [resizedRefArray[:, x - 1, :], resizedRefArray[:, x, :], zero]
 
             else:
-                imageArray3ch = np.dstack([resizedImageArray[:, x - 1, :], resizedImageArray[:, x, :], resizedImageArray[:, x + 1, :]])
+                sourceStack = [resizedSourceArray[:, x - 1, :], resizedSourceArray[:, x, :], resizedSourceArray[:, x + 1, :]]
+                refStack = [resizedRefArray[:, x - 1, :], resizedRefArray[:, x, :], resizedRefArray[:, x + 1, :]]
 
             
+            stack = sourceStack + refStack
+            imageArray3ch = np.dstack(stack)
+
             imageArray3ch = imageArray3ch[np.newaxis,...]
             print('Shape of input shape: {}'.format(imageArray3ch.shape))
             
@@ -127,9 +143,9 @@ def main(_):
         print('SegmentedArray shape : {}'.format(segmentedArray.shape))
 
         segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
+        saveImage(segmented, source, savePath)
+ 
 
-    
     if axis == 2:
         length = originalShape[2]
 
@@ -137,15 +153,21 @@ def main(_):
 
         for x in range(length):
             if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[:, :, x], resizedImageArray[:, :, x + 1]])
+                sourceStack = [zero, resizedSourceArray[:, :, x], resizedSourceArray[:, :, x + 1]]
+                refStack = [zero, resizedRefArray[:, :, x], resizedRefArray[:, :, x + 1]]
 
             elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[:, :, x - 1], resizedImageArray[:, :, x], zero])
+                sourceStack = [resizedSourceArray[:, :, x - 1], resizedSourceArray[:, :, x], zero]
+                refStack = [resizedRefArray[:, :, x - 1], resizedRefArray[:, :, x], zero]
 
             else:
-                imageArray3ch = np.dstack([resizedImageArray[:, :, x - 1], resizedImageArray[:, :, x], resizedImageArray[:, :, x + 1]])
+                sourceStack = [resizedSourceArray[:, :, x - 1], resizedSourceArray[:, :, x], resizedSourceArray[:, :, x + 1]]
+                refStack = [resizedRefArray[:, :, x - 1], resizedRefArray[:, :, x], resizedRefArray[:, :, x + 1]]
 
             
+            stack = sourceStack + refStack
+            imageArray3ch = np.dstack(stack)
+
             imageArray3ch = imageArray3ch[np.newaxis,...]
             print('Shape of input shape: {}'.format(imageArray3ch.shape))
             
@@ -162,8 +184,8 @@ def main(_):
         print('SegmentedArray shape : {}'.format(segmentedArray.shape))
 
         segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
-
+        saveImage(segmented, source, savePath)
+ 
     
 if __name__ == '__main__':
     args = ParseArgs()

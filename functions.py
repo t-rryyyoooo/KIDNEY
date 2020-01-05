@@ -11,6 +11,18 @@ def DICE(trueLabel, result):
    
     return dice
 
+def DICEVersion2(trueLabel1, result1, trueLabel2, result2):
+    intersection1 = np.sum(np.minimum(np.equal(trueLabel1, result1), trueLabel1))
+    union1 = np.count_nonzero(trueLabel1) + np.count_nonzero(result1)
+
+    intersection2 = np.sum(np.minimum(np.equal(trueLabel2, result2), trueLabel2))
+    union2 = np.count_nonzero(trueLabel2) + np.count_nonzero(result2)
+    
+    dice = 2 * (intersection1 + intersection2) / (union1 + union2)
+   
+    return dice
+
+
 def caluculateAVG(num):
     if len(num) == 0:
         return 1.0
