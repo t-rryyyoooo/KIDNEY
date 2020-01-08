@@ -37,7 +37,7 @@ def searchBound(labelArray, axis):
                 encounter = False
                 endIdx.append(l)
 
-        return startIdx, endIdx
+        
 
     if axis == 'coronal':
         _, length, _ = labelArray.shape
@@ -53,7 +53,6 @@ def searchBound(labelArray, axis):
                 encounter = False
                 endIdx.append(l)
 
-        return startIdx, endIdx        
 
     if axis == 'axial':
         _, _, length = labelArray.shape
@@ -68,7 +67,7 @@ def searchBound(labelArray, axis):
                 encounter = False
                 endIdx.append(l)
 
-        return startIdx, endIdx
+    return np.array(startIdx),np.array(endIdx)
 
 ## Not used
 def extractBoundingBox(labelArray):
@@ -448,3 +447,46 @@ def Resizing(source, ref, interpolation):
     print("zoomedArray shape : ", zoomedArray.shape)
     
     return zoomedArray
+
+
+def adjustDiff(startIdx, endIdx, maxSize):
+    diffIdx = endIdx - startIdx
+
+    diff = abs(diffIdx[0] - diffIdx[1])
+    zero = False
+    cnt = 0
+    if diffIdx[0] < diffIdx[1]:
+       while cnt != diff:
+            endIdx[0] += 1
+            cnt += 1
+
+            if cnt != diff and not zero:
+                startIdx[0] -= 1
+                if startIdx[0] == 0:
+                    zero = True
+                cnt += 1
+
+    else:
+        while cnt != diff:
+            startIdx[1] -= 1
+            cnt += 1
+
+            if cnt != diff and not zero:
+                endIdx[1] += 1
+                if endIdx[1] == (maxSize - 2):
+                    zero = True
+                cnt += 1
+                
+    return startIdx, endIdx
+
+def searchBoundAndMakeIndex(clipLabelArray, axis):
+    startIdx = []
+    endIdx = []
+    for x in ["left", "right"]:
+        labelArray = clipLabelArray[x]
+        
+        s, e = searchBound(labelArray, axis)
+        startIdx.append(*s)
+        endIdx.append(*e)
+    
+    return np.array(startIdx), np.array(endIdx)
