@@ -11,8 +11,8 @@ def ParseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("imagePath", help="/vmlab/Desktop/data/kit19/case_00000")
     parser.add_argument("savePath", help="/vmlab/data/box/case_00000")
-    parser.add_argument("--log", help="To write patients failed to clip", default="log")
-    parser.add_argument("--expansion", help="0", default=0, type=int)
+    parser.add_argument("--black", help="Change anything other than kidneys to black.", action="store_false")
+    parser.add_argument("--expansion", help="0", default = 0, type=int)
     parser.add_argument("--prefix", help="resampled_", default="")
     args = parser.parse_args()
 
@@ -75,11 +75,12 @@ def main(args):
     clipLabelArray["right"] = clipLabelArray["right"][::-1,...]
     clipImageArray["right"] = clipImageArray["right"][::-1,...]
 
-    leftIdx = np.where(clipLabelArray["left"] > 0, True, False)
-    clipImageArray["left"] = np.where(leftIdx, clipImageArray["left"], -1024)
-    rightIdx= np.where(clipLabelArray["right"] > 0, True, False)
-    clipImageArray["right"] = np.where(rightIdx, clipImageArray["right"], -1024)
-    
+    if args.black:
+        leftIdx = np.where(clipLabelArray["left"] > 0, True, False)
+        clipImageArray["left"] = np.where(leftIdx, clipImageArray["left"], -1024)
+        rightIdx= np.where(clipLabelArray["right"] > 0, True, False)
+        clipImageArray["right"] = np.where(rightIdx, clipImageArray["right"], -1024)
+        
 
     clipLabelArray["left"] = sitk.GetImageFromArray(clipLabelArray["left"])
     clipLabelArray["right"] = sitk.GetImageFromArray(clipLabelArray["right"])
@@ -91,6 +92,8 @@ def main(args):
     leftImagePath = savePath / "image_left.nii.gz"
     rightLabelPath = savePath / "label_right.nii.gz"
     rightImagePath = savePath / "image_right.nii.gz"
+
+    createParentPath(leftLabelPath)
     saveImage(clipLabelArray["left"], label, str(leftLabelPath))
     saveImage(clipLabelArray["right"], label, str(rightLabelPath))
     saveImage(clipImageArray["left"], label, str(leftImagePath))

@@ -15,7 +15,7 @@ do
 	echo $save
 
 	
-	python3 clipKidney.py ${data} ${save} 
+	python3 clipKidneyOBB.py ${data} ${save} 
 
 	if [ $? -eq 0 ]; then
 		echo "case_00${number} done."
