@@ -60,7 +60,7 @@ def main(args):
     print("Right Kidney clipped size : {}".format(clipLabelArray["right"].shape))
 
     startIdx, endIdx = searchBoundAndMakeIndex(clipLabelArray, "coronal")
-    startIdx, endIdx = adjustDiff(startIdx, endIdx, labelArray.shape[2])
+    startIdx, endIdx = adjustDiff(startIdx, endIdx, labelArray.shape[1])
     startIdx -= args.expansion
     endIdx += args.expansion
     clipLabelArray = {"left" : clipLabelArray["left"][:, startIdx[0] : endIdx[0] + 1, :], 
@@ -68,9 +68,18 @@ def main(args):
     clipImageArray = {"left" : clipImageArray["left"][:, startIdx[0] : endIdx[0] + 1, :], 
                       "right" : clipImageArray["right"][:, startIdx[1] : endIdx[1] + 1, :]}
 
-   print("Clipping images in coronal direction...")
+    print("Clipping images in coronal direction...")
     print("Left Kidney clipped size : {}".format(clipLabelArray["left"].shape))
     print("Right Kidney clipped size : {}".format(clipLabelArray["right"].shape))
+
+    clipLabelArray["right"] = clipLabelArray["right"][::-1,...]
+    clipImageArray["right"] = clipImageArray["right"][::-1,...]
+
+    leftIdx = np.where(clipLabelArray["left"] > 0, True, False)
+    clipImageArray["left"] = np.where(leftIdx, clipImageArray["left"], -1024)
+    rightIdx= np.where(clipLabelArray["right"] > 0, True, False)
+    clipImageArray["right"] = np.where(rightIdx, clipImageArray["right"], -1024)
+    
 
     clipLabelArray["left"] = sitk.GetImageFromArray(clipLabelArray["left"])
     clipLabelArray["right"] = sitk.GetImageFromArray(clipLabelArray["right"])
@@ -83,8 +92,8 @@ def main(args):
     rightLabelPath = savePath / "label_right.nii.gz"
     rightImagePath = savePath / "image_right.nii.gz"
     saveImage(clipLabelArray["left"], label, str(leftLabelPath))
-    saveImage(clipLabelArray["right"], label, str(leftImagePath))
-    saveImage(clipImageArray["left"], label, str(rightLabelPath))
+    saveImage(clipLabelArray["right"], label, str(rightLabelPath))
+    saveImage(clipImageArray["left"], label, str(leftImagePath))
     saveImage(clipImageArray["right"], label, str(rightImagePath))
 
 if __name__=="__main__":
