@@ -11,7 +11,7 @@ def ParseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("imagePath", help="/vmlab/Desktop/data/kit19/case_00000")
     parser.add_argument("savePath", help="/vmlab/data/box/case_00000")
-    parser.add_argument("--black", help="Change anything other than kidneys to black.", action="store_false")
+    parser.add_argument("--nonBlack", help="Change anything other than kidneys to black.", action="store_true")
     parser.add_argument("--expansion", help="0", default = 0, type=int)
     parser.add_argument("--prefix", help="resampled_", default="")
     args = parser.parse_args()
@@ -75,7 +75,7 @@ def main(args):
     clipLabelArray["right"] = clipLabelArray["right"][::-1,...]
     clipImageArray["right"] = clipImageArray["right"][::-1,...]
 
-    if args.black:
+    if not args.nonBlack:
         leftIdx = np.where(clipLabelArray["left"] > 0, True, False)
         clipImageArray["left"] = np.where(leftIdx, clipImageArray["left"], -1024)
         rightIdx= np.where(clipLabelArray["right"] > 0, True, False)
