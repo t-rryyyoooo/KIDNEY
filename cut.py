@@ -238,8 +238,7 @@ def save_image_256(imageArray, image, savePath, is_lab=False):
     if is_lab:
         LF = ResamplingInAxis(LF, image, (256,256), is_label=True)
     else:
-        LF = ResamplingInAxis(LF, image, (256,256), is_label=True)
-
+        LF = ResamplingInAxis(LF, image, (256,256) )
     
     sitk.WriteImage(LF, savePath, True)
 

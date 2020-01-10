@@ -24,12 +24,9 @@ def main(args):
     path = Path(args.filePath)
 
     leftImagePath = path / "image_left.nii.gz"
-    rightImagePath = path / "imge_right.nii.gz"
+    rightImagePath = path / "image_right.nii.gz"
     leftLabelPath = path / "label_left.nii.gz"
     rightLabelPath = path / "label_right.nii.gz"
-
-    textSavePath = path.parent / "path" / (path.name + ".txt")
-    createParentPath(textSavePath)
 
     leftImage = sitk.ReadImage(str(leftImagePath))
     rightImage = sitk.ReadImage(str(rightImagePath))
@@ -52,29 +49,33 @@ def main(args):
         rightLabelSlice = rightLabelArray[:,:,x]
 
         savePath = Path(args.savePath)
-        leftImageSavePath = savePath / "left/image_" + str(x).zfill(3) + ".mha"
-        rightImageSavePath = savePath / "right/image_" + str(x).zfill(3) + ".mha"
-        leftLabelSavePath = savePath / "left/label_" + str(x).zfill(3) + ".mha"
-        rightLabelSavePath = savePath / "right/label_" + str(x).zfill(3) + ".mha"
+        leftImageSavePath = savePath / ("left/image_" + str(x).zfill(3) + ".mha")
+        rightImageSavePath = savePath / ("right/image_" + str(x).zfill(3) + ".mha")
+        leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
+        rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
 
         createParentPath(leftImageSavePath)
+        createParentPath(rightImageSavePath)
 
-        save_image_256(leftImageSlice, leftImage, leftImageSavePath)
-        save_image_256(rightImageSlice, rightImage, rightImageSavePath)
-        save_image_256(leftLabelSlice, leftLabel, leftLabelSavePath, ia_lab=True)
-        save_image_256(rightLabelSlice, rightLabel, rightLabelSavePath, is_lab=True)
+        save_image_256(leftImageSlice, leftImage, str(leftImageSavePath))
+        save_image_256(rightImageSlice, rightImage, str(rightImageSavePath))
+        save_image_256(leftLabelSlice, leftLabel, str(leftLabelSavePath), is_lab=True)
+        save_image_256(rightLabelSlice, rightLabel, str(rightLabelSavePath), is_lab=True)
 
         imagePath.append(leftImageSavePath)
         imagePath.append(rightImageSavePath)
         labelPath.append(leftLabelSavePath)
         labelPath.append(rightLabelSavePath)
 
+
+    textSavePath = savePath.parent / "path" / (path.name + ".txt")
+    createParentPath(textSavePath)
+
     imagePath = sorted(imagePath)
     labelPath = sorted(labelPath)
     for x, y in zip(imagePath, labelPath):
-        write_file(textSavePath, x + "\t" + y)
+        write_file(textSavePath, str(x) + "\t" + str(y))
             
-            write_file(str(OPT), str(OPL) + "\t" + str(OPI))
 
         
 if __name__ == '__main__':
