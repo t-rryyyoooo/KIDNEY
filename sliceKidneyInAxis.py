@@ -4,7 +4,7 @@ import argparse
 import copy
 import os
 import sys
-from functions import createParentPath, write_file, Resampling
+from functions import createParentPath, write_file
 from cut import *
 from pathlib import Path
 
@@ -13,11 +13,9 @@ args = None
 def ParseArgs():
     parser = argparse.ArgumentParser()
 
-    #Change!!!!########################################################
     parser.add_argument("filePath", help="$HOME/Desktop/data/kits19/case_00000")
-    parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0")
+    parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0/case_00000")
 
-    ###################################################################
 
     args = parser.parse_args()
     return args

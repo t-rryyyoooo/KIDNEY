@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import SimpleITK as sitk
-from functions import Resampling
+from functions import Resampling, ResamplingInAxis
 
 def cut3D(labelArray, imageArray, axis):
     if axis=="axial":
@@ -220,17 +220,29 @@ def caluculate_area(imgArray):
     
     return area
 
+#For Resampling (maybe mistake)
+#def save_image_256(imageArray, image, savePath, is_lab=False):
+#    LF = sitk.GetImageFromArray(imageArray)
+#    if is_lab:
+#        LF = Resampling(LF,(256,256),LF.GetSize(), is_label=True)
+#    else:
+#        LF = Resampling(LF,(256,256),LF.GetSize())
+#
+#    print(LF.GetSpacing())
+#    
+#    sitk.WriteImage(LF, savePath, True)
+
+#For ResamplingInAxis 
 def save_image_256(imageArray, image, savePath, is_lab=False):
     LF = sitk.GetImageFromArray(imageArray)
     if is_lab:
-        LF = Resampling(LF,(256,256),LF.GetSize(), is_label=True)
+        LF = ResamplingInAxis(LF, image, (256,256), is_label=True)
     else:
-        LF = Resampling(LF,(256,256),LF.GetSize())
+        LF = ResamplingInAxis(LF, image, (256,256), is_label=True)
 
-    LF.SetOrigin(image.GetOrigin())
-   # LF.SetSpacing(image.GetSpacing())
-    LF.SetSpacing(LF.GetSpacing())
+    
     sitk.WriteImage(LF, savePath, True)
+
 
 def inverse_image(roi, cutKidFragLabel, wh, center, angle,labelArray, i):
     blackImg = np.zeros_like(cutKidFragLabel)

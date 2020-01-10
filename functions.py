@@ -64,8 +64,9 @@ def write_file(file_name, text):
         #print(text)
         file.write(text + "\n")
 
+# 3D -> 3D or 2D -> 2D
 def Resampling(image, newsize, roisize, origin = None, is_label = False):
-    #isize = image.GetSize()
+   #isize = image.GetSize()
     ivs = image.GetSpacing()
     
     if image.GetNumberOfComponentsPerPixel() == 1:
@@ -78,10 +79,9 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
     osize = newsize
     
 
-    
+    print(ivs, roisize, osize)
     ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
     
-
     resampler = sitk.ResampleImageFilter()
     resampler.SetSize(osize)
     if origin is not None:
@@ -98,6 +98,41 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
     resampled = resampler.Execute(image)
 
     return resampled
+
+#3D -> 2D in axis direction
+def ResamplingInAxis(image, refImage,  newsize, is_label = False):
+    ivs = refImage.GetSpacing()[1:]
+
+    if image.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(image)
+        minval = minmax.GetMinimum()
+    else:
+        minval = None
+    
+    roisize = image.GetSize()
+    osize = newsize
+    
+
+    
+    ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
+    direction = (0.0, 1.0, -1.0, 0.0)
+    origin = refImage.GetOrigin()[1:]
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetSize(osize)
+    resampler.SetOutputOrigin(origin)
+    resampler.SetOutputDirection(direction)
+    resampler.SetOutputSpacing(ovs)
+    if minval is not None:
+        resampler.SetDefaultPixelValue(minval)
+    if is_label:
+        resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+
+    resampled = resampler.Execute(image)
+
+    return resampled
+
 
 def readlines_file(file_name):
     # 行毎のリストを返す

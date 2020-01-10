@@ -37,11 +37,13 @@ def searchBound(labelArray, axis):
                 encounter = False
                 endIdx.append(l)
 
-        
+        if not endIdx:
+            endIdx.append(length - 1)
+
+       
 
     if axis == 'coronal':
         _, length, _ = labelArray.shape
-        
         for l in range(length):
             sliceArray = labelArray[:, l, :]
             area = caluculate_area(sliceArray)
@@ -52,6 +54,9 @@ def searchBound(labelArray, axis):
             if area == 0 and encounter:
                 encounter = False
                 endIdx.append(l)
+
+        if not endIdx:
+            endIdx.append(length - 1)
 
 
     if axis == 'axial':
@@ -66,6 +71,9 @@ def searchBound(labelArray, axis):
             if area == 0 and encounter:
                 encounter = False
                 endIdx.append(l)
+
+        if not endIdx:
+            endIdx.append(length - 1)
 
     return np.array(startIdx),np.array(endIdx)
 
@@ -449,35 +457,76 @@ def Resizing(source, ref, interpolation):
     return zoomedArray
 
 
+#def adjustDiff(startIdx, endIdx, maxSize):
+#    diffIdx = endIdx - startIdx
+#
+#    diff = abs(diffIdx[0] - diffIdx[1])
+#    zero = False
+#    cnt = 0
+#    print(diff)
+#    print(maxSize, startIdx, endIdx)
+#    if diffIdx[0] < diffIdx[1]:
+#       while cnt != diff:
+#            endIdx[0] += 1
+#            cnt += 1
+#
+#            if cnt != diff and not zero:
+#                if startIdx[0] == 0:
+#                    zero = True
+#                else:
+#                    startIdx[0] -= 1
+#                    cnt += 1
+#
+#    else:
+#        while cnt != diff:
+#            startIdx[1] -= 1
+#            cnt += 1
+#
+#            if cnt != diff and not zero:
+#                if endIdx[1] == (maxSize - 1):
+#                    zero = True
+#                else:
+#                    endIdx[1] += 1
+#                    cnt += 1
+#
+#    print(startIdx, endIdx)
+#                
+#    return startIdx, endIdx
+
 def adjustDiff(startIdx, endIdx, maxSize):
     diffIdx = endIdx - startIdx
 
     diff = abs(diffIdx[0] - diffIdx[1])
     zero = False
+    maxsize = False
     cnt = 0
+    print(diff)
+    print(maxSize, startIdx, endIdx)
     if diffIdx[0] < diffIdx[1]:
-       while cnt != diff:
-            endIdx[0] += 1
-            cnt += 1
-
-            if cnt != diff and not zero:
-                startIdx[0] -= 1
-                if startIdx[0] == 0:
-                    zero = True
-                cnt += 1
-
+        axis = 0
     else:
-        while cnt != diff:
-            startIdx[1] -= 1
-            cnt += 1
+        axis = 1
 
-            if cnt != diff and not zero:
-                endIdx[1] += 1
-                if endIdx[1] == (maxSize - 2):
-                    zero = True
+    while cnt != diff:
+        if not zero:
+            if startIdx[axis] == 0:
+                zero = True
+            else:
+                startIdx[axis] -= 1
                 cnt += 1
+
+        if not maxsize and cnt != diff:
+            if endIdx[axis] == (maxSize - 1):
+                maxsize = True
+            else:
+                endIdx[axis] += 1
+                cnt += 1
+
+           
+    print(startIdx, endIdx)
                 
     return startIdx, endIdx
+
 
 def searchBoundAndMakeIndex(clipLabelArray, axis):
     startIdx = []
@@ -486,6 +535,12 @@ def searchBoundAndMakeIndex(clipLabelArray, axis):
         labelArray = clipLabelArray[x]
         
         s, e = searchBound(labelArray, axis)
+        if axis=="coronal" or axis=="axis":
+            if len(s) > 1:
+                s = [s[0]]
+            if len(e) > 1:
+                e = [e[1]]
+
         startIdx.append(*s)
         endIdx.append(*e)
     

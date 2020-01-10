@@ -24,6 +24,7 @@ def main(args):
     labelPath = path / (args.prefix + 'segmentation.nii.gz')
     image = sitk.ReadImage(str(imagePath))
     label = sitk.ReadImage(str(labelPath))
+    print(label.GetSize())
 
 
     imageArray = sitk.GetArrayFromImage(image)
