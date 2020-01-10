@@ -13,7 +13,7 @@ args = None
 def ParseArgs():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("filePath", help="$HOME/Desktop/data/kits19/case_00000")
+    parser.add_argument("filePath", help="/home/vmlab/Desktop/data/box/AABB/nonBlack/case_00000")
     parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0/case_00000")
 
 
