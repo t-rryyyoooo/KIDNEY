@@ -10,38 +10,53 @@ date >> fail/deeds.txt
 
 for number in ${numArr[@]}
 do
-	leftData="${DATA}/case_00${number}/image_left.nii.gz"
-	rightData="${DATA}/case_00${number}/image_right.nii.gz"
+	leftImageData="${DATA}/case_00${number}/image_left.nii.gz"
+	rightImageData="${DATA}/case_00${number}/image_right.nii.gz"
+	leftLabelData="${DATA}/case_00${number}/label_left.nii.gz"
+	rightLabelData="${DATA}/case_00${number}/label_right.nii.gz"
 
-	leftNonLinearSave="${SAVE}/nonLinear/case_00${number}/image_left.nii.gz"
-	rightNonLinearSave="${SAVE}/nonLinear/case_00${number}/image_right.nii.gz"
-	leftWithLinearSave="${SAVE}/withLinear/case_00${number}/image_left.nii.gz"
-	rightWithLinearSave="${SAVE}/withLinear/case_00${number}/image_right.nii.gz"
+
+	leftImageNonLinearSave="${SAVE}/nonLinear/case_00${number}/image_left.nii.gz"
+	rightImageNonLinearSave="${SAVE}/nonLinear/case_00${number}/image_right.nii.gz"
+	leftImageWithLinearSave="${SAVE}/withLinear/case_00${number}/image_left.nii.gz"
+	rightImageWithLinearSave="${SAVE}/withLinear/case_00${number}/image_right.nii.gz"
+	leftLabelNonLinearSave="${SAVE}/nonLinear/case_00${number}/label_left.nii.gz"
+	rightLabelNonLinearSave="${SAVE}/nonLinear/case_00${number}/label_right.nii.gz"
+	leftLabelWithLinearSave="${SAVE}/withLinear/case_00${number}/label_left.nii.gz"
+	rightLabelWithLinearSave="${SAVE}/withLinear/case_00${number}/label_right.nii.gz"
 
 	mkdir -p "${SAVE}/nonLinear/case_00${number}"
 	mkdir -p "${SAVE}/withLinear/case_00${number}"
 
 
-	echo $leftData
-	echo $rightData
-	echo $leftNonLinearSave
-	echo $rightNonLinearSave
-	echo $leftWithLinearSave
-	echo $rightWithLinearSave
+	echo $leftImageData
+	echo $rightImageData
+	echo $leftImageNonLinearSave
+	echo $rightImageNonLinearSave
+	echo $leftImageWithLinearSave
+	echo $rightImageWithLinearSave
+	echo $leftLabelNonLinearSave
+	echo $rightLabelNonLinearSave
+	echo $leftLabelWithLinearSave
+	echo $rightLabelWithLinearSave
 
-	../deedsBCV/linearBCV -F $leftData -M $rightData -O right
-	../deedsBCV/linearBCV -F $rightData -M $leftData -O left
+	../deedsBCV/linearBCV -F $leftImageData -M $rightImageData -O right
+	../deedsBCV/linearBCV -F $rightImageData -M $leftImageData -O left
 
-	../deedsBCV/deedsBCV -F $leftData -M $rightData -O right_nonLinear
-	../deedsBCV/deedsBCV -F $leftData -M $rightData -A right_matrix.txt -O right_withLinear
+	../deedsBCV/deedsBCV -F $leftImageData -M $rightImageData -O right_nonLinear
+	../deedsBCV/deedsBCV -F $leftImageData -M $rightImageData -A right_matrix.txt -O right_withLinear -S $rightLabelData
 
-	../deedsBCV/deedsBCV -F $rightData -M $leftData -O left_nonLinear
-	../deedsBCV/deedsBCV -F $rightData -M $leftData -A left_matrix.txt -O left_withLinear
+	../deedsBCV/deedsBCV -F $rightImageData -M $leftImageData -O left_nonLinear
+	../deedsBCV/deedsBCV -F $rightImageData -M $leftImageData -A left_matrix.txt -O left_withLinear -S $leftLabelData
 
-	mv right_nonLinear_deformed.nii.gz $rightNonLinearSave
-	mv right_withLinear_deformed.nii.gz $rightWithLinearSave
-	mv left_nonLinear_deformed.nii.gz $leftNonLinearSave
-	mv left_withLinear_deformed.nii.gz $leftWithLinearSave
+	mv right_nonLinear_deformed.nii.gz $rightImageNonLinearSave
+	mv right_withLinear_deformed.nii.gz $rightImageWithLinearSave
+	mv left_nonLinear_deformed.nii.gz $leftImageNonLinearSave
+	mv left_withLinear_deformed.nii.gz $leftImageWithLinearSave
+	mv right_nonLinear_deformed_seg.nii.gz $rightLabelNonLinearSave
+	mv right_withLinear_deformed_seg.nii.gz $rightLabelWithLinearSave
+	mv left_nonLinear_deformed_seg.nii.gz $leftLabelNonLinearSave
+	mv left_withLinear_deformed_seg.nii.gz $leftLabelWithLinearSave
 
 	if [ $? -eq 0 ]; then
 		echo "case_00${number} done."

@@ -15,7 +15,7 @@ def ParseArgs():
 
     parser.add_argument("filePath", help="/home/vmlab/Desktop/data/box/AABB/nonBlack/case_00000")
     parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0/case_00000")
-
+    parser.add_argument("nonLabel", action="store_true")
 
     args = parser.parse_args()
     return args
@@ -25,18 +25,22 @@ def main(args):
 
     leftImagePath = path / "image_left.nii.gz"
     rightImagePath = path / "image_right.nii.gz"
-    leftLabelPath = path / "label_left.nii.gz"
-    rightLabelPath = path / "label_right.nii.gz"
 
     leftImage = sitk.ReadImage(str(leftImagePath))
     rightImage = sitk.ReadImage(str(rightImagePath))
-    leftLabel = sitk.ReadImage(str(leftLabelPath))
-    rightLabel = sitk.ReadImage(str(rightLabelPath))
 
     leftImageArray = sitk.GetArrayFromImage(leftImage)
     rightImageArray = sitk.GetArrayFromImage(rightImage)
-    leftLabelArray = sitk.GetArrayFromImage(leftLabel)
-    rightLabelArray = sitk.GetArrayFromImage(rightLabel)
+
+    if not nonLabel:
+        leftLabelPath = path / "label_left.nii.gz"
+        rightLabelPath = path / "label_right.nii.gz"
+
+        leftLabel = sitk.ReadImage(str(leftLabelPath))
+        rightLabel = sitk.ReadImage(str(rightLabelPath))
+
+        leftLabelArray = sitk.GetArrayFromImage(leftLabel)
+        rightLabelArray = sitk.GetArrayFromImage(rightLabel)
 
     length = leftImageArray.shape[2]
 
@@ -45,17 +49,20 @@ def main(args):
     for x in range(length):
         leftImageSlice = leftImageArray[:,:,x]
         rightImageSlice = rightImageArray[:,:,x]
-        leftLabelSlice = leftLabelArray[:,:,x]
-        rightLabelSlice = rightLabelArray[:,:,x]
 
         savePath = Path(args.savePath)
         leftImageSavePath = savePath / ("left/image_" + str(x).zfill(3) + ".mha")
         rightImageSavePath = savePath / ("right/image_" + str(x).zfill(3) + ".mha")
-        leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
-        rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
 
         createParentPath(leftImageSavePath)
         createParentPath(rightImageSavePath)
+
+        if not nonLabel:
+            leftLabelSlice = leftLabelArray[:,:,x]
+            rightLabelSlice = rightLabelArray[:,:,x]
+
+            leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
+            rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
 
         save_image_256(leftImageSlice, leftImage, str(leftImageSavePath))
         save_image_256(rightImageSlice, rightImage, str(rightImageSavePath))
