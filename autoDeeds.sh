@@ -43,10 +43,10 @@ do
 	../deedsBCV/linearBCV -F $leftImageData -M $rightImageData -O right
 	../deedsBCV/linearBCV -F $rightImageData -M $leftImageData -O left
 
-	../deedsBCV/deedsBCV -F $leftImageData -M $rightImageData -O right_nonLinear
+	../deedsBCV/deedsBCV -F $leftImageData -M $rightImageData -O right_nonLinear -S $rightLabelData
 	../deedsBCV/deedsBCV -F $leftImageData -M $rightImageData -A right_matrix.txt -O right_withLinear -S $rightLabelData
 
-	../deedsBCV/deedsBCV -F $rightImageData -M $leftImageData -O left_nonLinear
+	../deedsBCV/deedsBCV -F $rightImageData -M $leftImageData -O left_nonLinear -S $leftLabelData
 	../deedsBCV/deedsBCV -F $rightImageData -M $leftImageData -A left_matrix.txt -O left_withLinear -S $leftLabelData
 
 	mv right_nonLinear_deformed.nii.gz $rightImageNonLinearSave
