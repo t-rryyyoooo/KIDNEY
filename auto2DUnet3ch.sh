@@ -14,11 +14,11 @@ read id
 training="${TRAINING}${suffix}.txt"
 validation="${VALIDATION}${suffix}.txt"
 weight="${WEIGHT}${suffix}.hdf5"
-history="${HISTORY}${suffix}.txt"
+histories="${HISTORY}${suffix}.txt"
 echo $training
 echo $validation
 echo $weight
-echo $history
+echo $histories
 
-python3 buildUnet3chAugmentation.py ${training} ${weight} -t ${validation} --history ${history} -b 15 -e 40 -g $id
+python3 buildUnet3chAugmentation.py ${training} ${weight} -t ${validation} --history ${histories} -b 15 -e 40 -g $id
 

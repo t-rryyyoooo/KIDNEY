@@ -60,7 +60,7 @@ def main(args):
     imagePathList = sorted(imagePathList)
     labelPathList = sorted(labelPathList)
     for x, y in zip(imagePathList, labelPathList):
-        write_file(textSavePath, str(x) + "\t" + str(y))
+        write_file(textSavePath, str(y) + "\t" + str(x))
             
 
         

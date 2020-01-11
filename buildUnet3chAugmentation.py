@@ -58,6 +58,7 @@ def main(_):
     trainingdatafile = os.path.expanduser(args.trainingdatafile)
 
     trainingdatalist = ReadSliceDataList3ch_1ch(trainingdatafile)
+    print(trainingdatalist[0])
     testdatalist = None
     if args.testfile is not None:
         testfile = os.path.expanduser(args.testfile)

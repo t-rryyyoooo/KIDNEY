@@ -48,9 +48,16 @@ def main(args):
     if image.GetNumberOfComponentsPerPixel() == 1:
         minmax = sitk.MinimumMaximumImageFilter()
         minmax.Execute(image)
-        minval = minmax.GetMinimum()
+        imageMinval = minmax.GetMinimum()
     else:
-        minval = None
+        imageMinval = None
+
+    if label.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(label)
+        labelMinval = minmax.GetMinimum()
+    else:
+        labelMinval = None
 
     ##################################################
 
@@ -222,18 +229,30 @@ def main(args):
                           originalSize[1] * originalSpacing[1] / newSize[1]]
 
 
-            resampler = sitk.ResampleImageFilter()
-            if minval is not None:
-                resampler.SetDefaultPixelValue(minval)
+            imageResampler = sitk.ResampleImageFilter()
+            if imageMinval is not None:
+                imageResampler.SetDefaultPixelValue(imageMinval)
 
-            resampler.SetOutputSpacing(newSpacing)
-            resampler.SetOutputOrigin(sliceImage.GetOrigin())
-            resampler.SetOutputDirection(sliceImage.GetDirection())
-            resampler.SetSize(newSize)
+            imageResampler.SetOutputSpacing(newSpacing)
+            imageResampler.SetOutputOrigin(sliceImage.GetOrigin())
+            imageResampler.SetOutputDirection(sliceImage.GetDirection())
+            imageResampler.SetSize(newSize)
 
-            roiImage = resampler.Execute(roiImage)
-            resampler.SetInterpolator(sitk.sitkNearestNeighbor)
-            roiLabel = resampler.Execute(roiLabel)
+            roiImage = imageResampler.Execute(roiImage)
+
+            labelResampler= sitk.ResampleImageFilter()
+
+            if labelMinval is not None:
+                labelResampler.SetDefaultPixelValue(labelMinval)
+
+            labelResampler.SetOutputSpacing(newSpacing)
+            labelResampler.SetOutputOrigin(sliceImage.GetOrigin())
+            labelResampler.SetOutputDirection(sliceImage.GetDirection())
+            labelResampler.SetSize(newSize)
+
+            labelResampler.SetInterpolator(sitk.sitkNearestNeighbor)
+            roiLabel = labelResampler.Execute(roiLabel)
+
 
             sitk.WriteImage(roiImage, str(OPI), True)
             sitk.WriteImage(roiLabel, str(OPL), True)
