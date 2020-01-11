@@ -15,7 +15,6 @@ def ParseArgs():
 
     parser.add_argument("filePath", help="/home/vmlab/Desktop/data/box/AABB/nonBlack/case_00000")
     parser.add_argument("savePath", help="$HOME/Desktop/data/slice/hist_0.0/case_00000")
-    parser.add_argument("nonLabel", action="store_true")
 
     args = parser.parse_args()
     return args
@@ -32,15 +31,14 @@ def main(args):
     leftImageArray = sitk.GetArrayFromImage(leftImage)
     rightImageArray = sitk.GetArrayFromImage(rightImage)
 
-    if not nonLabel:
-        leftLabelPath = path / "label_left.nii.gz"
-        rightLabelPath = path / "label_right.nii.gz"
+    leftLabelPath = path / "label_left.nii.gz"
+    rightLabelPath = path / "label_right.nii.gz"
 
-        leftLabel = sitk.ReadImage(str(leftLabelPath))
-        rightLabel = sitk.ReadImage(str(rightLabelPath))
+    leftLabel = sitk.ReadImage(str(leftLabelPath))
+    rightLabel = sitk.ReadImage(str(rightLabelPath))
 
-        leftLabelArray = sitk.GetArrayFromImage(leftLabel)
-        rightLabelArray = sitk.GetArrayFromImage(rightLabel)
+    leftLabelArray = sitk.GetArrayFromImage(leftLabel)
+    rightLabelArray = sitk.GetArrayFromImage(rightLabel)
 
     length = leftImageArray.shape[2]
 
@@ -57,12 +55,11 @@ def main(args):
         createParentPath(leftImageSavePath)
         createParentPath(rightImageSavePath)
 
-        if not nonLabel:
-            leftLabelSlice = leftLabelArray[:,:,x]
-            rightLabelSlice = rightLabelArray[:,:,x]
+        leftLabelSlice = leftLabelArray[:,:,x]
+        rightLabelSlice = rightLabelArray[:,:,x]
 
-            leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
-            rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
+        leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
+        rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
 
         save_image_256(leftImageSlice, leftImage, str(leftImageSavePath))
         save_image_256(rightImageSlice, rightImage, str(rightImageSavePath))
