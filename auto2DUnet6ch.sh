@@ -17,8 +17,8 @@ read id
 
 training1="${TRAINING}${originalSuffix}.txt"
 training2="${TRAINING}${refSuffix}.txt"
-validation1="${VALIDATION}${originalSUffix}.txt"
-validation2="${VALIDATION}${refsuffix}.txt"
+validation1="${VALIDATION}${originalSuffix}.txt"
+validation2="${VALIDATION}${refSuffix}.txt"
 weight="${WEIGHT}${weightSuffix}.hdf5"
 histories="${HISTORY}${weightSuffix}.txt"
 echo $training1
