@@ -30,4 +30,3 @@ echo $histories
 
 python3 buildUnet6chAugmentation.py ${training1} ${training2} ${weight} -t ${validation1} ${validation2} --history ${histories} -b 15 -e 40 -g $id
 
-python3 mail.py $HISTORY
