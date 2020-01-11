@@ -8,10 +8,10 @@ numArr=(000 001 002 003 004 005 006 007 008 009 010 011 012 013 014 015 016 017 
 
 date >> fail/slice.txt
 
-for i in ${numArr[@]}
+for number in ${numArr[@]}
 do
 
-	data="${DATA}/case_00${i}"
+	data="${DATA}/case_00${number}"
 
 	echo $data
 	echo $SAVE

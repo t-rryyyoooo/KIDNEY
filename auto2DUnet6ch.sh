@@ -3,24 +3,31 @@
 #Input
 readonly TRAINING="$HOME/Desktop/data/textList/training_"
 readonly VALIDATION="$HOME/Desktop/data/textList/validation_"
-readonly WEIGHT="$HOME/Desktop/data/modelweight/best_6ch_6ch.hdf5"
-readonly HISTORY="$HOME/Desktop/data/history/history_6ch_6ch.txt"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_"
+readonly HISTORY="$HOME/Desktop/data/history/history_"
 
+echo -n original_suffix:
+read originalSuffix
+echo -n ref_suffix:
+read refSuffix
+echo -n weight_suffix:
+read weightSuffix
 echo -n GPU_ID:
 read id
 
-training1="${TRAINING}original.txt"
-training2="${TRAINING}transform.txt"
-validation1="${VALIDATION}original.txt"
-validation2="${VALIDATION}transform.txt"
-
+training1="${TRAINING}${originalSuffix}.txt"
+training2="${TRAINING}${refSuffix}.txt"
+validation1="${VALIDATION}${originalSUffix}.txt"
+validation2="${VALIDATION}${refsuffix}.txt"
+weight="${WEIGHT}${weightSuffix}.hdf5"
+histories="${HISTORY}${weightSuffix}.txt"
 echo $training1
 echo $training2
 echo $validation1
 echo $validation2
-echo $WEIGHT
-echo $HISTORY
+echo $weight
+echo $histories
 
-python3 buildUnet6chAugmentation.py ${training1} ${training2} ${WEIGHT} -t ${validation1} ${validation2} --history ${HISTORY} -b 15 -e 40 -g $id
+python3 buildUnet6chAugmentation.py ${training1} ${training2} ${weight} -t ${validation1} ${validation2} --history ${histories} -b 15 -e 40 -g $id
 
 python3 mail.py $HISTORY

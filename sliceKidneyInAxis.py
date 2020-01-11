@@ -21,63 +21,45 @@ def ParseArgs():
 
 def main(args):
     path = Path(args.filePath)
+    savePath = Path(args.savePath)
+    saveSize = (256, 256)
 
-    leftImagePath = path / "image_left.nii.gz"
-    rightImagePath = path / "image_right.nii.gz"
+    imagePathList = []
+    labelPathList = []
 
-    leftImage = sitk.ReadImage(str(leftImagePath))
-    rightImage = sitk.ReadImage(str(rightImagePath))
+    for d in ["left", "right"]:
+        imagePath = path / ("image_" + d + ".nii.gz")
+        labelPath = path / ("label_" + d + ".nii.gz")
 
-    leftImageArray = sitk.GetArrayFromImage(leftImage)
-    rightImageArray = sitk.GetArrayFromImage(rightImage)
+        image = sitk.ReadImage(str(imagePath))
+        label = sitk.ReadImage(str(labelPath))
 
-    leftLabelPath = path / "label_left.nii.gz"
-    rightLabelPath = path / "label_right.nii.gz"
+        dummyPath = savePath / d / "dummy.mha"
+        createParentPath(dummyPath)
 
-    leftLabel = sitk.ReadImage(str(leftLabelPath))
-    rightLabel = sitk.ReadImage(str(rightLabelPath))
+        length = image.GetSize()[0]
+        for x in range(length):
+            imageSavePath = savePath / d / ("image_" + str(x).zfill(3) + ".mha")
+            labelSavePath = savePath / d / ("label_" + str(x).zfill(3) + ".mha")
 
-    leftLabelArray = sitk.GetArrayFromImage(leftLabel)
-    rightLabelArray = sitk.GetArrayFromImage(rightLabel)
 
-    length = leftImageArray.shape[2]
+            imageSlice = ResamplingInAxis(image, x, saveSize)
+            labelSlice = ResamplingInAxis(label, x, saveSize, is_label=True)
 
-    imagePath = []
-    labelPath = []
-    for x in range(length):
-        leftImageSlice = leftImageArray[:,:,x]
-        rightImageSlice = rightImageArray[:,:,x]
+            sitk.WriteImage(imageSlice, str(imageSavePath), True)
+            sitk.WriteImage(labelSlice, str(labelSavePath), True)
 
-        savePath = Path(args.savePath)
-        leftImageSavePath = savePath / ("left/image_" + str(x).zfill(3) + ".mha")
-        rightImageSavePath = savePath / ("right/image_" + str(x).zfill(3) + ".mha")
 
-        createParentPath(leftImageSavePath)
-        createParentPath(rightImageSavePath)
-
-        leftLabelSlice = leftLabelArray[:,:,x]
-        rightLabelSlice = rightLabelArray[:,:,x]
-
-        leftLabelSavePath = savePath / ("left/label_" + str(x).zfill(3) + ".mha")
-        rightLabelSavePath = savePath / ("right/label_" + str(x).zfill(3) + ".mha")
-
-        save_image_256(leftImageSlice, leftImage, str(leftImageSavePath))
-        save_image_256(rightImageSlice, rightImage, str(rightImageSavePath))
-        save_image_256(leftLabelSlice, leftLabel, str(leftLabelSavePath), is_lab=True)
-        save_image_256(rightLabelSlice, rightLabel, str(rightLabelSavePath), is_lab=True)
-
-        imagePath.append(leftImageSavePath)
-        imagePath.append(rightImageSavePath)
-        labelPath.append(leftLabelSavePath)
-        labelPath.append(rightLabelSavePath)
+            imagePathList.append(str(imageSavePath))
+            labelPathList.append(str(labelSavePath))
 
 
     textSavePath = savePath.parent / "path" / (path.name + ".txt")
     createParentPath(textSavePath)
 
-    imagePath = sorted(imagePath)
-    labelPath = sorted(labelPath)
-    for x, y in zip(imagePath, labelPath):
+    imagePathList = sorted(imagePathList)
+    labelPathList = sorted(labelPathList)
+    for x, y in zip(imagePathList, labelPathList):
         write_file(textSavePath, str(x) + "\t" + str(y))
             
 

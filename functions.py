@@ -79,7 +79,6 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
     osize = newsize
     
 
-    print(ivs, roisize, osize)
     ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
     
     resampler = sitk.ResampleImageFilter()
@@ -100,8 +99,14 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
     return resampled
 
 #3D -> 2D in axis direction
-def ResamplingInAxis(image, refImage,  newsize, is_label = False):
-    ivs = refImage.GetSpacing()[1:]
+def ResamplingInAxis(image, idx, newSize, is_label = False):
+    extractSliceFilter = sitk.ExtractImageFilter()
+    size = list(image.GetSize())
+    size[0] = 0
+    extractSliceFilter.SetSize(size)
+    index = (idx, 0, 0)
+    extractSliceFilter.SetIndex(index)
+    sliceImage = extractSliceFilter.Execute(image)
 
     if image.GetNumberOfComponentsPerPixel() == 1:
         minmax = sitk.MinimumMaximumImageFilter()
@@ -109,29 +114,30 @@ def ResamplingInAxis(image, refImage,  newsize, is_label = False):
         minval = minmax.GetMinimum()
     else:
         minval = None
-    
-    roisize = image.GetSize()
-    osize = newsize
-    
+ 
 
-    
-    ovs = [ vs * s / os for vs, s, os in zip(ivs, roisize, osize) ]
-    direction = (0.0, 1.0, -1.0, 0.0)
-    origin = refImage.GetOrigin()[1:]
+    originalSpacing = sliceImage.GetSpacing()
+    originalSize = sliceImage.GetSize()
+
+    newSpacing = [originalSize[0] * originalSpacing[0] / newSize[0], 
+                  originalSize[1] * originalSpacing[1] / newSize[1]]
 
     resampler = sitk.ResampleImageFilter()
-    resampler.SetSize(osize)
-    resampler.SetOutputOrigin(origin)
-    resampler.SetOutputDirection(direction)
-    resampler.SetOutputSpacing(ovs)
+
     if minval is not None:
         resampler.SetDefaultPixelValue(minval)
+        
+    resampler.SetOutputSpacing(newSpacing)
+    resampler.SetOutputOrigin(sliceImage.GetOrigin())
+    resampler.SetOutputDirection(sliceImage.GetDirection())
+    resampler.SetSize(newSize)
+    
     if is_label:
         resampler.SetInterpolator(sitk.sitkNearestNeighbor)
 
-    resampled = resampler.Execute(image)
+    sliceImageResampled = resampler.Execute(sliceImage)
 
-    return resampled
+    return sliceImageResampled
 
 
 def readlines_file(file_name):

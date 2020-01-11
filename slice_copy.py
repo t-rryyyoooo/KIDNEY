@@ -35,25 +35,6 @@ def main(args):
     image = sitk.ReadImage(str(imageFile))
     ##########################################################
 
-    ##################################################
-    # For resampling, get direction, spacing, origin in 2D
-    extractSliceFilter = sitk.ExtractImageFilter()
-    size = list(image.GetSize())
-    size[0] = 0
-    index = (0, 0, 0)
-    extractSliceFilter.SetSize(size)
-    extractSliceFilter.SetIndex(index)
-    sliceImage = extractSliceFilter.Execute(image)
-
-    if image.GetNumberOfComponentsPerPixel() == 1:
-        minmax = sitk.MinimumMaximumImageFilter()
-        minmax.Execute(image)
-        minval = minmax.GetMinimum()
-    else:
-        minval = None
-
-    ##################################################
-
     labelArray = sitk.GetArrayFromImage(label)
     imageArray = sitk.GetArrayFromImage(image)
 
@@ -204,40 +185,8 @@ def main(args):
                 createParentPath(str(OPT))
 
 
-            roiLabel = sitk.GetImageFromArray(roi_label)
-            roiImage = sitk.GetImageFromArray(roi_image)
-
-            originalSpacing = sliceImage.GetSpacing()
-            originalSize = roiLabel.GetSize()
-
-            roiLabel.SetSpacing(originalSpacing)
-            roiImage.SetSpacing(originalSpacing)
-            roiLabel.SetOrigin(sliceImage.GetOrigin())
-            roiImage.SetOrigin(sliceImage.GetOrigin())
-            roiLabel.SetDirection(sliceImage.GetDirection())
-            roiImage.SetDirection(sliceImage.GetDirection())
-
-            newSize = (256, 256)
-            newSpacing = [originalSize[0] * originalSpacing[0] / newSize[0], 
-                          originalSize[1] * originalSpacing[1] / newSize[1]]
-
-
-            resampler = sitk.ResampleImageFilter()
-            if minval is not None:
-                resampler.SetDefaultPixelValue(minval)
-
-            resampler.SetOutputSpacing(newSpacing)
-            resampler.SetOutputOrigin(sliceImage.GetOrigin())
-            resampler.SetOutputDirection(sliceImage.GetDirection())
-            resampler.SetSize(newSize)
-
-            roiImage = resampler.Execute(roiImage)
-            resampler.SetInterpolator(sitk.sitkNearestNeighbor)
-            roiLabel = resampler.Execute(roiLabel)
-
-            sitk.WriteImage(roiImage, str(OPI), True)
-            sitk.WriteImage(roiLabel, str(OPL), True)
-
+            save_image_256(roi_label, label, str(OPL), is_lab=True)
+            save_image_256(roi_image, image, str(OPI))
             
             write_file(str(OPT), str(OPL) + "\t" + str(OPI))
 

@@ -228,7 +228,6 @@ def caluculate_area(imgArray):
 #    else:
 #        LF = Resampling(LF,(256,256),LF.GetSize())
 #
-#    print(LF.GetSpacing())
 #    
 #    sitk.WriteImage(LF, savePath, True)
 
@@ -239,7 +238,7 @@ def save_image_256(imageArray, image, savePath, is_lab=False):
         LF = ResamplingInAxis(LF, image, (256,256), is_label=True)
     else:
         LF = ResamplingInAxis(LF, image, (256,256) )
-    
+
     sitk.WriteImage(LF, savePath, True)
 
 
