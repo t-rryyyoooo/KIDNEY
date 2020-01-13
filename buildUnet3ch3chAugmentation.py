@@ -9,7 +9,7 @@ import random
 #import keras.backend as K
 import time
 from functions import createParentPath, caluculateTime, dice, cancer_dice, kidney_dice, penalty_categorical
-from loader import ReadSliceDataList3ch3ch_1ch, GetInputShapes, ImportBatchArray3ch3ch
+from loader import ReadSliceDataList3ch3ch_1ch, GetInputShapes3ch3ch, ImportBatchArray3ch3ch
 from Unet import ConstructModel
 from server import *
 from pathlib import Path
@@ -63,7 +63,7 @@ def main(_):
 
         testdatalist = random.sample(testdatalist, int(len(testdatalist)*0.1))
 
-    (imageshape, labelshape) = GetInputShapes(trainingdatalist[0])
+    (imageshape, labelshape) = GetInputShapes3ch3ch(trainingdatalist[0])
     nclasses = 3 # Number of classes
     print("image shapes: ",imageshape)
     print("label shapes: ",labelshape)

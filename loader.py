@@ -258,10 +258,49 @@ def ImportImage3ch(pList):#[["case_00000/image0_00.mha", "case_00000/image0_01.m
     
     return stackedArray
 
+def ImportImage3ch3ch(pList):#[["case_00000/image0_00.mha", "case_00000/image0_01.mha", "case_00000/image0_02.mha"],\
+                          # ["case_00000/image0_01.mha", "case_00000/image0_02.mha", "case_00000/image0_03.mha"]...]
+    
+    stacked = False
+    dummy = sitk.GetArrayFromImage(sitk.ReadImage(pList[0][1]))
+    stack = []
+    for imageFile in pList:
+        check = False
+        for img in imageFile:
+            if img is None:
+                imagearry = np.zeros_like(dummy) - 1024.0
+                minval = -1024.0
+            else:
+                image = sitk.ReadImage(img)
+                minval = GetMinimumValue(image)
+
+                imagearry = sitk.GetArrayFromImage(image)
+            
+            if not check:
+                check = True
+                stackedArray = imagearry
+
+            else:
+                stackedArray = np.dstack([stackedArray, imagearry])
+
+        stack.append(stackedArray)
+
+    stackedArray = np.stack(stack, axis=-1)
+ 
+   
+    
+    return stackedArray
+
 def GetInputShapes(filenamepair):
     image = ImportImage3ch(filenamepair[0])
     label = ImportImage(filenamepair[1])
     return (image.shape, label.shape)
+
+def GetInputShapes3ch3ch(filenamepair):
+    image = ImportImage3ch3ch(filenamepair[0])
+    label = ImportImage(filenamepair[1])
+    return (image.shape, label.shape)
+
 
 def GetMinimumValue(image):
     minmax = sitk.MinimumMaximumImageFilter()
@@ -512,7 +551,7 @@ def ImportBatchArray3ch3ch(datalist, batch_size = 32, apply_augmentation = False
 
         else:
             for i in range(0, len(indices), batch_size):
-                imagelist = np.array([ ImportImage3ch(datalist[idx][0]) for idx in indices[i:i+batch_size] ])
+                imagelist = np.array([ ImportImage3ch3ch(datalist[idx][0]) for idx in indices[i:i+batch_size] ])
 
                 onehotlabellist = np.array([ tf.keras.utils.to_categorical(ImportImage(datalist[idx][1]),num_classes=3) for idx in indices[i:i+batch_size] ])
 
