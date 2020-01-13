@@ -6,7 +6,7 @@ import os
 import sys
 import copy
 import tensorflow as tf
-from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage
+from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage, ResampleSize
 from clip3D import Resizing
 from cut import sliceImage
 
@@ -52,117 +52,59 @@ def main(_):
     ## Read image
     image = sitk.ReadImage(imagefile)
 
-    imageArray = sitk.GetArrayFromImage(image)
-
-    print("Whole size: ",imageArray.shape)
-
-    originalShape = imageArray.shape
-
-    resizedImageArray, axis = sliceImage(imageArray, interpolation="linear")
+    print("Image shape : {}".format(image.GetSize()))
+    length = image.GetSize()[0]
+    segmentedSize = (256, 256)
+    sliceImageArrayList = []
+    for x in range(length):
+        sliceImage = ResamplingInAxis(image, x, segmentedSize)
+        sliceImageArray = sitk.GetArrayFromImage(sliceImage)
+        sliceImageArrayList.append(sliceImageArray)
     
-    segmentedArray = []
-    if axis == 0:
-        length = originalShape[0]
+    zero = np.zeros(segmentedSize) - 1024.
+    segmentedArrayList = []
 
-        zero = np.zeros((256, 256)) - 1024.
+    for x in range(length):
+        middle = sliceImageArrayList[x]
+        if x == 0:
+            top = zero
+            bottom = sliceImageArrayList[x + 1]
 
-        for x in range(length):
-            if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[x, :, :], resizedImageArray[x + 1, :, :]])
+        elif x == (length - 1):
+            top = sliceImageArrayList[x - 1]
+            bottom = zero
 
-            elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[x - 1, :, :], resizedImageArray[x, :, :], zero])
+        else:
+            top = sliceImageArrayList[x - 1]
+            bottom = sliceImageArrayList[x + 1]
 
-            else:
-                imageArray3ch = np.dstack([resizedImageArray[x - 1, :, :], resizedImageArray[x, :, :], resizedImageArray[x + 1, :, :]])
+        imageArray3ch = np.dstack([top, middle, bottom])
+        imageArray3ch = imageArray3ch[np.newaxis, ...]
+        print("Shape og input shape : {}".format(imageArray3ch.shape))
+        print("Segmenting...")
 
-            
-            imageArray3ch = imageArray3ch[np.newaxis,...]
-            print('Shape of input shape: {}'.format(imageArray3ch.shape))
-            
-            print('segmenting...')
-            segArray = model.predict(imageArray3ch, batch_size=args.batchsize, verbose=0)
-            segArray = np.argmax(segArray, axis=-1).astype(np.uint8)
-            segArray = segArray.reshape(256, 256)
+        segmentedArray = model.predict(imageArray3ch, batch_size=args.batchsize, berbose=0)
+        segmentedArray = np.argmax(segmentedArray, axis=-1).astype(np.int8)
+        segmentedArray = segmentedArray.reshape(*newSize)
 
-            segmentedArray.append(segArray)
+        segmentedArrayList.append(segmentedArray)
 
-        segmentedArray = np.stack(segmentedArray, axis=axis)
-        dummyArray = np.zeros(originalShape)
-        segmentedArray = Resizing(segmentedArray, dummyArray, interpolation="nearest")
-        print('SegmentedArray shape : {}'.format(segmentedArray.shape))
+    segmentedArray = np.dstack(segmentedArrayList)
+    segmented = sitk.GetImageFromArray(segmentedArray)
 
-        segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
+    dummy = ResampleSize(image, [length] + newSize)
+    segmented.SetOrigin(dummy.GetOrigin())
+    segmented.SetSpacing(dummy.GetSpacing())
+    segmented.SetDirection(dummy.GetDirection())
+
+    segmented = ResampleSize(segmented, image.GetSize(), is_label=True)
     
-    if axis == 1:
-        length = originalShape[1]
+    print("SegmentedArray shape : {}".format(segmented.GetSize()))
 
-        zero = np.zeros((256, 256)) - 1024.
+    sitk.WriteImage(segmented, savePath, True)
 
-        for x in range(length):
-            if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[:, x, :], resizedImageArray[:, x + 1, :]])
 
-            elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[:, x - 1, :], resizedImageArray[:, x, :], zero])
 
-            else:
-                imageArray3ch = np.dstack([resizedImageArray[:, x - 1, :], resizedImageArray[:, x, :], resizedImageArray[:, x + 1, :]])
-
-            
-            imageArray3ch = imageArray3ch[np.newaxis,...]
-            print('Shape of input shape: {}'.format(imageArray3ch.shape))
-            
-            print('segmenting...')
-            segArray = model.predict(imageArray3ch, batch_size=args.batchsize, verbose=0)
-            segArray = np.argmax(segArray, axis=-1).astype(np.uint8)
-            segArray = segArray.reshape(256, 256)
-
-            segmentedArray.append(segArray)
-
-        segmentedArray = np.stack(segmentedArray, axis=axis)
-        dummyArray = np.zeros(originalShape)
-        segmentedArray = Resizing(segmentedArray, dummyArray, interpolation="nearest")
-        print('SegmentedArray shape : {}'.format(segmentedArray.shape))
-
-        segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
-
-    
-    if axis == 2:
-        length = originalShape[2]
-
-        zero = np.zeros((256, 256)) - 1024.
-
-        for x in range(length):
-            if x == 0:
-                imageArray3ch = np.dstack([zero, resizedImageArray[:, :, x], resizedImageArray[:, :, x + 1]])
-
-            elif x == (length - 1):
-                imageArray3ch = np.dstack([resizedImageArray[:, :, x - 1], resizedImageArray[:, :, x], zero])
-
-            else:
-                imageArray3ch = np.dstack([resizedImageArray[:, :, x - 1], resizedImageArray[:, :, x], resizedImageArray[:, :, x + 1]])
-
-            
-            imageArray3ch = imageArray3ch[np.newaxis,...]
-            print('Shape of input shape: {}'.format(imageArray3ch.shape))
-            
-            print('segmenting...')
-            segArray = model.predict(imageArray3ch, batch_size=args.batchsize, verbose=0)
-            segArray = np.argmax(segArray, axis=-1).astype(np.uint8)
-            segArray = segArray.reshape(256, 256)
-
-            segmentedArray.append(segArray)
-
-        segmentedArray = np.stack(segmentedArray, axis=axis)
-        dummyArray = np.zeros(originalShape)
-        segmentedArray = Resizing(segmentedArray, dummyArray, interpolation="nearest")
-        print('SegmentedArray shape : {}'.format(segmentedArray.shape))
-
-        segmented = sitk.GetImageFromArray(segmentedArray)
-        saveImage(segmented, image, savePath)
 
     
 if __name__ == '__main__':

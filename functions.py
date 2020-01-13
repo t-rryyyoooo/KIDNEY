@@ -98,6 +98,36 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
 
     return resampled
 
+# 3D -> 3D or 2D -> 2D
+def ResampleSize(image, newsize, is_label = False):
+    originalSpacing = image.GetSpacing()
+    originalSize = image.GetSize()
+
+    if image.GetNumberOfComponentsPerPixel() == 1:
+        minmax = sitk.MinimumMaximumImageFilter()
+        minmax.Execute(image)
+        minval = minmax.GetMinimum()
+    else:
+        minval = None
+    
+    newSpacing = [osp * os / ns for osp, ls, ns in zip(originalSpacing, originalSize, newSize)]
+    newOrigin = image.GetOrigin()
+    newDirection = image.GetDirection()
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetSize(newSize)
+    resampler.SetOutputOrigin(newOrigin)
+    resampler.SetOutputDirection(newDirection)
+    resampler.SetOutputSpacing(newSpacing)
+    if minval is not None:
+        resampler.SetDefaultPixelValue(minval)
+    if is_label:
+        resampler.SetInterpolator(sitk.sitkNearestNeighbor)
+
+    resampled = resampler.Execute(image)
+
+    return resampled
+
 #3D -> 2D in axis direction
 def ResamplingInAxis(image, idx, newSize, is_label = False):
     extractSliceFilter = sitk.ExtractImageFilter()
