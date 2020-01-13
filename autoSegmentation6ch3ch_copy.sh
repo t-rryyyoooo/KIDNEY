@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Input
-readonly DATA="$HOME/Desktop/data/box/OBB/original"
+readonly DATA="$HOME/Desktop/data/box/OBB"
 readonly SAVE="$HOME/Desktop/data/box/OBB/original"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_6ch_3ch.hdf5"
 
@@ -28,7 +28,6 @@ do
     echo $saveRight
     echo "GPU ID: $id"
 
-#    python3 segmentationUnet6ch3chAtOnce.py $ctRight $WEIGHT $saveRight -g $id
     python3 segmentationUnet6ch3chAtOnce_copy.py $ctRight $WEIGHT $saveRight -g $id
 
     echo $ctLeft
@@ -36,8 +35,8 @@ do
     echo $saveLeft
     echo "GPU ID: $id"
 
-#    python3 segmentationUnet6ch3chAtOnce.py $ctLeft $WEIGHT $saveLeft -g $id
     python3 segmentationUnet6ch3chAtOnce_copy.py $ctLeft $WEIGHT $saveLeft -g $id
 
 
 done
+

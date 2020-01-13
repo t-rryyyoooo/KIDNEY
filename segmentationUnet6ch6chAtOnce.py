@@ -6,7 +6,7 @@ import os
 import sys
 import copy
 import tensorflow as tf
-from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage
+from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage, ResampleSize, ResamplingInAxis
 from clip3D import Resizing
 from cut import sliceImage
 
@@ -91,7 +91,7 @@ def main(_):
             sourceBottom = sourceImageArrayList[x + 1]
             refBottom = refImageArrayList[x + 1]
 
-        souceStack = [sourceTop, sourceMiddle, sourceBottom]
+        sourceStack = [sourceTop, sourceMiddle, sourceBottom]
         refStack = [refTop, refMiddle, refBottom]
         stack = sourceStack + refStack
 
@@ -102,14 +102,14 @@ def main(_):
 
         segmentedArray = model.predict(imageArray6ch, batch_size=args.batchsize, verbose=0)
         segmentedArray = np.argmax(segmentedArray, axis=-1).astype(np.int8)
-        segmentedArray = segmentedArray.reshape(*newSize)
+        segmentedArray = segmentedArray.reshape(*segmentedSize)
 
         segmentedArrayList.append(segmentedArray)
     
     segmentedArray = np.dstack(segmentedArrayList)
     segmented = sitk.GetImageFromArray(segmentedArray)
 
-    dummy = ResampleSize(source, [length] + newSize)
+    dummy = ResampleSize(source, [length] + segmentedSize)
     segmented.SetOrigin(dummy.GetOrigin())
     segmented.SetDirection(dummy.GetDirection())
     segmented.SetSpacing(dummy.GetSpacing())

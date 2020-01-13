@@ -7,19 +7,19 @@ import matplotlib.pyplot as plt
 def DICE(trueLabel, result):
     intersection=np.sum(np.minimum(np.equal(trueLabel,result),trueLabel))
     union = np.count_nonzero(trueLabel)+np.count_nonzero(result)
-    dice = 2 * intersection / union
+    dice = 2 * intersection / (union + 10**(-9))
    
     return dice
 
 def DICEVersion2(trueLabel1, result1, trueLabel2, result2):
+    
     intersection1 = np.sum(np.minimum(np.equal(trueLabel1, result1), trueLabel1))
     union1 = np.count_nonzero(trueLabel1) + np.count_nonzero(result1)
 
     intersection2 = np.sum(np.minimum(np.equal(trueLabel2, result2), trueLabel2))
     union2 = np.count_nonzero(trueLabel2) + np.count_nonzero(result2)
     
-    dice = 2 * (intersection1 + intersection2) / (union1 + union2)
-   
+    dice = 2 * (intersection1 + intersection2) / (union1 + union2 + 10**(-9))
     return dice
 
 
@@ -99,7 +99,7 @@ def Resampling(image, newsize, roisize, origin = None, is_label = False):
     return resampled
 
 # 3D -> 3D or 2D -> 2D
-def ResampleSize(image, newsize, is_label = False):
+def ResampleSize(image, newSize, is_label = False):
     originalSpacing = image.GetSpacing()
     originalSize = image.GetSize()
 
@@ -109,8 +109,9 @@ def ResampleSize(image, newsize, is_label = False):
         minval = minmax.GetMinimum()
     else:
         minval = None
-    
-    newSpacing = [osp * os / ns for osp, ls, ns in zip(originalSpacing, originalSize, newSize)]
+
+
+    newSpacing = [osp * os / ns for osp, os, ns in zip(originalSpacing, originalSize, newSize)]
     newOrigin = image.GetOrigin()
     newDirection = image.GetDirection()
 

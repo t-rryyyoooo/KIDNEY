@@ -169,6 +169,43 @@ def ReadSliceDataList6ch_1ch(filename1, filename2):
                         
     return pathList
 
+def ReadSliceDataList3ch3ch_1ch(filename1, filename2):
+    dataList1 = []
+    dataList2 = []
+    
+    pathList = []
+    #Read datalist
+    with open(filename1) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            dataList1.append((imagefile, labelfile))
+    
+    with open(filename2) as f:
+        for line in f:
+            labelfile, imagefile = line.strip().split('\t')
+            dataList2.append((imagefile, labelfile))
+
+    imageDict1, labelDict1 = makeDict(dataList1)
+    imageDict2, labelDict2 = makeDict(dataList2)
+
+    for id1 in imageDict1.keys():
+        for id2 in imageDict2.keys():
+            lastDict1 = id1.split("/")
+            lastDict2 = id2.split("/")
+
+            if lastDict1[-2] == lastDict2[-2]:
+                if lastDict1[-1] != lastDict2[-1]:
+                    pathList1 = make3ch_1chList(imageDict1[id1], labelDict1[id1])
+                    pathList2 = make3ch_1chList(imageDict2[id2], labelDict2[id2])
+
+
+                    for path1, path2 in zip(pathList1, pathList2):
+                        imageList = [path1[0], path2[0]]
+                        labelList = path1[1]
+
+                        pathList.append((imageList, labelList))
+                        
+    return pathList
 
 
 def ImportImage(filename):
@@ -381,6 +418,57 @@ def ImportImageTransformed3d(imagefile, labelfile):
             stackedArray = np.dstack([stackedArray, imagearry])
     
     
+
+    return stackedArray, labelarry
+
+def ImportImageTransformed3ch3ch(imageFileList, labelfile):
+    translationrange = 0 # [mm]
+    rotrange = 15 # [deg]
+    shearrange = 0
+    scalerange = 0.05
+
+    # Affine parameters
+    translation = np.random.uniform(-translationrange, translationrange, 2)
+    rotation = np.radians(np.random.uniform(-rotrange, rotrange))
+    shear = np.random.uniform(-shearrange, shearrange, 2)
+    scale = np.random.uniform(1-scalerange, 1+scalerange)
+    
+    #label(1ch)
+    label = sitk.ReadImage(labelfile)
+    center = np.array(label.GetSize()) * np.array(label.GetSpacing()) / 2
+
+    
+    affine = Affine(translation, rotation, scale, shear, center)
+    transformed_label = Transforming3d(label, affine, sitk.sitkNearestNeighbor, 0)
+    labelarry = sitk.GetArrayFromImage(transformed_label)
+    
+    #image(3ch * 3ch)
+    stack = []
+    for imageFile in imageFileList:
+        check = False
+        for img in imageFile:
+            if img is None:
+                imagearry = np.zeros_like(labelarry) - 1024.0
+                minval = -1024.0
+            else:
+                image = sitk.ReadImage(img)
+                minval = GetMinimumValue(image)
+
+                transformed_image = Transforming3d(image, affine, sitk.sitkLinear, minval)
+                imagearry = sitk.GetArrayFromImage(transformed_image)
+            
+            if not check:
+                check = True
+                stackedArray = imagearry
+
+            else:
+                stackedArray = np.dstack([stackedArray, imagearry])
+
+        stack.append(stackedArray)
+
+    stackedArray = np.stack(stack, axis=-1)
+    print(stackedArray.shape)
+
 
     return stackedArray, labelarry
 

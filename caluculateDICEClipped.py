@@ -55,6 +55,11 @@ def main(args):
         resultKidRight= np.where(resultArrayRight == 1, 1, 0)
         resultCanRight= np.where(resultArrayRight == 2, 2, 0)
 
+       # if (trueCanLeft != 2).all() and (resultCanLeft != 2).all():
+       #     cancer = 
+
+            
+
 
         kidney = DICEVersion2(trueKidLeft, resultKidLeft, trueKidRight, resultKidRight)
         cancer = DICEVersion2(trueCanLeft, resultCanLeft, trueCanRight, resultCanRight)

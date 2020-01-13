@@ -6,7 +6,7 @@ import os
 import sys
 import copy
 import tensorflow as tf
-from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage, ResampleSize
+from functions import createParentPath, Resampling, cancer_dice, kidney_dice, penalty_categorical, saveImage, ResampleSize, ResamplingInAxis
 from clip3D import Resizing
 from cut import sliceImage
 
@@ -54,7 +54,7 @@ def main(_):
 
     print("Image shape : {}".format(image.GetSize()))
     length = image.GetSize()[0]
-    segmentedSize = (256, 256)
+    segmentedSize = [256, 256]
     sliceImageArrayList = []
     for x in range(length):
         sliceImage = ResamplingInAxis(image, x, segmentedSize)
@@ -83,16 +83,16 @@ def main(_):
         print("Shape og input shape : {}".format(imageArray3ch.shape))
         print("Segmenting...")
 
-        segmentedArray = model.predict(imageArray3ch, batch_size=args.batchsize, berbose=0)
+        segmentedArray = model.predict(imageArray3ch, batch_size=args.batchsize, verbose=0)
         segmentedArray = np.argmax(segmentedArray, axis=-1).astype(np.int8)
-        segmentedArray = segmentedArray.reshape(*newSize)
+        segmentedArray = segmentedArray.reshape(*segmentedSize)
 
         segmentedArrayList.append(segmentedArray)
 
     segmentedArray = np.dstack(segmentedArrayList)
     segmented = sitk.GetImageFromArray(segmentedArray)
 
-    dummy = ResampleSize(image, [length] + newSize)
+    dummy = ResampleSize(image, [length] + segmentedSize)
     segmented.SetOrigin(dummy.GetOrigin())
     segmented.SetSpacing(dummy.GetSpacing())
     segmented.SetDirection(dummy.GetDirection())
@@ -101,12 +101,11 @@ def main(_):
     
     print("SegmentedArray shape : {}".format(segmented.GetSize()))
 
+    print("Saving image to {}...".format(savePath))
+
     sitk.WriteImage(segmented, savePath, True)
 
 
-
-
-    
 if __name__ == '__main__':
     args = ParseArgs()
     tf.compat.v1.app.run(main=main, argv=[sys.argv[0]])
