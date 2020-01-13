@@ -494,3 +494,26 @@ def ImportBatchArray(datalist, batch_size = 32, apply_augmentation = False):
                 onehotlabellist = np.array([ tf.keras.utils.to_categorical(ImportImage(datalist[idx][1]),num_classes=3) for idx in indices[i:i+batch_size] ])
 
                 yield (imagelist, onehotlabellist)
+
+def ImportBatchArray3ch3ch(datalist, batch_size = 32, apply_augmentation = False):
+    while True:
+        indices = list(range(len(datalist)))
+        random.shuffle(indices)
+        
+
+        if apply_augmentation:
+            for i in range(0, len(indices), batch_size):
+               imagelabellist = [ ImportImageTransformed3ch3ch(datalist[idx][0], datalist[idx][1]) for idx in indices[i:i+batch_size] ]
+               #print("apply_augmentation")
+               imagelist, labellist = zip(*imagelabellist)
+               onehotlabellist = tf.keras.utils.to_categorical(labellist,num_classes=3)
+               #print("patch shape1 :",imagelist[0].shape)
+               yield (np.array(imagelist), np.array(onehotlabellist))
+
+        else:
+            for i in range(0, len(indices), batch_size):
+                imagelist = np.array([ ImportImage3ch(datalist[idx][0]) for idx in indices[i:i+batch_size] ])
+
+                onehotlabellist = np.array([ tf.keras.utils.to_categorical(ImportImage(datalist[idx][1]),num_classes=3) for idx in indices[i:i+batch_size] ])
+
+                yield (imagelist, onehotlabellist)
