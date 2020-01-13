@@ -2,7 +2,7 @@
 
 #Input
 readonly DATA="$HOME/Desktop/data/box/OBB"
-readonly SAVE="$HOME/Desktop/data/box/OBB/transform"
+readonly SAVE="$HOME/Desktop/data/box/OBB/test_6ch"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_6ch_6ch.hdf5"
 
 NUMBERS=(019 023 054 093 096 123 127 136 141 153 188 191 201)
