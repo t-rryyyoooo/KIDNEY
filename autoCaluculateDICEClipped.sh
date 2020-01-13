@@ -2,7 +2,7 @@
 
 #Input
 readonly TRUE="$HOME/Desktop/data/box/OBB/"
-readonly RESULT="$HOME/Desktop/data/box/OBB/"
+readonly RESULT="$HOME/Desktop/data/box/OBB/test_6ch"
 readonly TEXT="$HOME/Desktop/KIDNEY/result"
 readonly PREFIX="obb_6ch"
 
