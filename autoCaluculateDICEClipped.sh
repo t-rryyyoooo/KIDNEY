@@ -2,9 +2,9 @@
 
 #Input
 readonly TRUE="$HOME/Desktop/data/box/OBB/"
-readonly RESULT="$HOME/Desktop/data/box/OBB/original"
+readonly RESULT="$HOME/Desktop/data/box/OBB/"
 readonly TEXT="$HOME/Desktop/KIDNEY/result"
-readonly PREFIX="obb_3ch"
+readonly PREFIX="obb_6ch"
 
 
 text="${TEXT}/${PREFIX}.txt"
