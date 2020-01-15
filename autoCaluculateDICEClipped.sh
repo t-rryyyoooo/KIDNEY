@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #Input
-readonly TRUE="$HOME/Desktop/data/box/OBB/"
-readonly RESULT="$HOME/Desktop/data/box/OBB/transform"
+readonly TRUE="$HOME/Desktop/data/box/AABB/nonBlack"
+readonly RESULT="$HOME/Desktop/data/box/AABB/nonBlack"
 readonly TEXT="$HOME/Desktop/KIDNEY/result"
-readonly PREFIX="obb_6ch"
+readonly PREFIX="notAlignedFull"
 
 
 text="${TEXT}/${PREFIX}.txt"
