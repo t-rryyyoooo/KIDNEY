@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #Input
-readonly TRUE="$HOME/Desktop/data/box/AABB/nonBlack"
-readonly RESULT="$HOME/Desktop/data/box/AABB/nonBlack"
+readonly TRUE="$HOME/Desktop/data/box/AABB/nonBlackNoReverse"
+readonly RESULT="$HOME/Desktop/data/box/AABB/nonBlackNoReverse"
 readonly TEXT="$HOME/Desktop/KIDNEY/result"
-readonly PREFIX="notAlignedFull"
+readonly PREFIX="nonBlackNoReverse"
 
 
 text="${TEXT}/${PREFIX}.txt"

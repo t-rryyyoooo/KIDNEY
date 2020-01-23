@@ -14,6 +14,7 @@ def ParseArgs():
     parser.add_argument("--nonBlack", help="Change anything other than kidneys to black.", action="store_true")
     parser.add_argument("--expansion", help="0", default = 0, type=int)
     parser.add_argument("--prefix", help="resampled_", default="")
+    parser.add_argument("--noReverse", help='Reverse right kIdney', action="store_true")
     args = parser.parse_args()
 
     return args
@@ -73,8 +74,10 @@ def main(args):
     print("Left Kidney clipped size : {}".format(clipLabelArray["left"].shape))
     print("Right Kidney clipped size : {}".format(clipLabelArray["right"].shape))
 
-    clipLabelArray["right"] = clipLabelArray["right"][::-1,...]
-    clipImageArray["right"] = clipImageArray["right"][::-1,...]
+    if not args.noReverse:
+                
+        clipLabelArray["right"] = clipLabelArray["right"][::-1,...]
+        clipImageArray["right"] = clipImageArray["right"][::-1,...]
 
     if not args.nonBlack:
         leftIdx = np.where(clipLabelArray["left"] > 0, True, False)

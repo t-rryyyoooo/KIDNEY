@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #Input
-readonly DATA="$HOME/Desktop/data/box/AABB/nonBlack"
-readonly SAVE="$HOME/Desktop/data/box/AABB/nonBlack"
-readonly WEIGHT="$HOME/Desktop/data/modelweight/best_notAlignedFull.hdf5"
+readonly DATA="$HOME/Desktop/data/box/AABB/nonBlackNoReverse"
+readonly SAVE="$HOME/Desktop/data/box/AABB/nonBlackNoReverse"
+readonly WEIGHT="$HOME/Desktop/data/modelweight/best_nonBlackNoReverse.hdf5"
 
 NUMBERS=(019 023 054 093 096 123 127 136 141 153 188 191 201)
-NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
+#NUMBERS=(173 002 068 133 155 114 090 105 112 175 183 208 029 065 157 162 141 062 031 156 189 135 020 077 000 009 198 036)
 echo -n GPU_ID:
 read id
 
