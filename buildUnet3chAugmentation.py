@@ -11,7 +11,7 @@ import time
 from functions import createParentPath, caluculateTime, dice, cancer_dice, kidney_dice, penalty_categorical
 from loader import ReadSliceDataList3ch_1ch, GetInputShapes, ImportBatchArray
 from Unet import ConstructModel
-from server import *
+from saver import *
 
 args = None
 
