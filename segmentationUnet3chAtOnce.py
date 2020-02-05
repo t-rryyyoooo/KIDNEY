@@ -19,7 +19,6 @@ def ParseArgs():
     #parser.add_argument("modelfile", help="U-net model file (*.yml).")
     parser.add_argument("modelweightfile", help="Trained model weights file (*.hdf5).")
     parser.add_argument("savepath", help="Segmented label file.(.mha)")
-    parser.add_argument("alpha", default=0.0, type=float)
     parser.add_argument("--paoutfile", help="The filename of the estimated probabilistic map file.")
     parser.add_argument("-g", "--gpuid", help="ID of GPU to be used for segmentation. [default=0]", default=0, type=int)
     parser.add_argument("-b", "--batchsize", help="Batch size", default=1, type=int)
@@ -229,11 +228,11 @@ def main(_):
             print("{}(st nd) kidney {}/{} cutted".format(i,len(invDic[i]),len(cutKidFragLabel[i][0,0,:])))
         
         #ヒストグラム均一化
-        equalizedImageArrayList = equalizingHistogram(imgArrayList, args.alpha)
+        #equalizedImageArrayList = equalizingHistogram(imgArrayList, args.alpha)
         
-        llll = 0
-        for equalizedImage, inv in zip(equalizedImageArrayList, invDic[i]):
-            inv["roi_img"] = equalizedImage
+        #llll = 0
+        #for equalizedImage, inv in zip(equalizedImageArrayList, invDic[i]):
+         #   inv["roi_img"] = equalizedImage
             # save_image_256(equalizedImage, label, r"test/test"+str(i)+"_"+str(llll)+".mha")
             # llll += 1
         
