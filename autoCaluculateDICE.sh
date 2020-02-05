@@ -2,9 +2,9 @@
 
 #Input
 readonly TRUE="$HOME/Desktop/data/kits19"
-readonly RESULT="$HOME/Desktop/data/slice/original/segmentation"
-readonly TEXT="$HOME/Desktop/KIDNEY/result"
-readonly PREFIX="3ch_selected"
+readonly RESULT="$HOME/Desktop/data/slice/newOriginal/segmentation"
+readonly TEXT="$HOME/Desktop/kidney/original/result"
+readonly PREFIX="test"
 
 
 text="${TEXT}/${PREFIX}.txt"
