@@ -2,7 +2,7 @@
 
 #Input
 readonly TRAINING="$HOME/Desktop/data/textList/training_"
-readonly VALIDATION="$HOME/Desktop/data/textList/validation_"
+readonly VALIDATION="$HOME/Desktop/data/textList/testing_"
 readonly WEIGHT="$HOME/Desktop/data/modelweight/best_"
 readonly HISTORY="$HOME/Desktop/data/history/hostory_"
 
