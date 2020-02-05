@@ -1,4 +1,4 @@
-case_00019
+7case_00019
 Average whole: 0.9783415552483272  
 Average kidney: 0.9801884630608234  
 Average cancer: 0.4181147972617167  
