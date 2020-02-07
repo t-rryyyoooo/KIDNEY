@@ -35,6 +35,7 @@ def ParseArgs():
     parser.add_argument("--weightfile", help="The filename of the trained weight parameters file for fine tuning or resuming.")
     parser.add_argument("--premodel", help="The filename of the previously trained model")
     parser.add_argument("--initialepoch", help="Epoch at which to start training for resuming a previous training", default=0, type=int)
+    parser.add_argument("initialWeightFilePath", help="For Reproducibility")
     #parser.add_argument("--idlist", help="The filename of ID list for splitting input datasets into training and validation datasets.")
     #parser.add_argument("--split", help="Fraction of the training data to be used as validation data.", default=0.0, type=float)
     parser.add_argument("--logdir", help="Log directory", default='log')
@@ -83,6 +84,7 @@ def main(_):
 
         model.compile(loss=penalty_categorical, optimizer=optimizer, metrics=[kidney_dice, cancer_dice])
 
+
     #createParentPath(args.modelfile)
     # with open(args.modelfile, 'w') as f:
     #     f.write(model.to_yaml())
@@ -90,6 +92,8 @@ def main(_):
 
     if args.weightfile is None:
         initial_epoch = 0
+        createParentPath(args.initialWeightFilePath)
+        model.save_weights(args.initialWeightFilePath)
     else:
         model.load_weights(args.weightfile)
         initial_epoch = args.initialepoch
