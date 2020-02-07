@@ -3,7 +3,7 @@
 #Input
 readonly TRUE="$HOME/Desktop/data/kits19"
 readonly RESULT="$HOME/Desktop/data/slice/notAligned/segmentation2"
-readonly TEXT="$HOME/Desktop/KIDNEY/result"
+readonly TEXT="$HOME/Desktop/kidney/original/result"
 readonly PREFIX="notAligned2"
 
 

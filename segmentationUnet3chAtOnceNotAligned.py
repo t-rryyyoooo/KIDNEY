@@ -22,24 +22,24 @@ def ParseArgs():
     return args
 
 def main(_):
-#    config = tf.compat.v1.ConfigProto()
-#    config.gpu_options.allow_growth = True
-#    config.allow_soft_placement = True
-#    #config.log_device_placement = True
-#    sess = tf.compat.v1.Session(config=config)
-#    tf.compat.v1.keras.backend.set_session(sess)
-#
-#    modelweightfile = os.path.expanduser(args.modelweightfile)
-#
-#    with tf.device('/device:GPU:{}'.format(args.gpuid)):
-#        print('loading U-net model {}...'.format(modelweightfile), end='', flush=True)
-#        # with open(args.modelfile) as f:
-#        #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
-#        # model.load_weights(args.modelweightfile)
-#        model = tf.compat.v1.keras.models.load_model(modelweightfile,
-#         custom_objects={'penalty_categorical' : penalty_categorical, 'kidney_dice':kidney_dice, 'cancer_dice':cancer_dice})
-#
-#        print('done')
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    config.allow_soft_placement = True
+    #config.log_device_placement = True
+    sess = tf.compat.v1.Session(config=config)
+    tf.compat.v1.keras.backend.set_session(sess)
+
+    modelweightfile = os.path.expanduser(args.modelweightfile)
+
+    with tf.device('/device:GPU:{}'.format(args.gpuid)):
+        print('loading U-net model {}...'.format(modelweightfile), end='', flush=True)
+        # with open(args.modelfile) as f:
+        #     model = tf.compat.v1.keras.models.model_from_yaml(f.read())
+        # model.load_weights(args.modelweightfile)
+        model = tf.compat.v1.keras.models.load_model(modelweightfile,
+         custom_objects={'penalty_categorical' : penalty_categorical, 'kidney_dice':kidney_dice, 'cancer_dice':cancer_dice})
+
+        print('done')
 
     savePath = os.path.expanduser(args.savePath)
     createParentPath(savePath)
@@ -64,10 +64,12 @@ def main(_):
 
     clipLabelArray = {"left" : labelArray[startIdx[0] : endIdx[0] + 1,...], 
                       "right" : labelArray[startIdx[1] : endIdx[1] + 1,...]}
+
     clipImageArray = {"left" : imageArray[startIdx[0] : endIdx[0] + 1,...], 
                       "right" : imageArray[startIdx[1] : endIdx[1] + 1,...]}
     meta["left"] = {"sagittal" : [startIdx[0], endIdx[0] + 1]}
     meta["right"] = {"sagittal" : [startIdx[1], endIdx[1] + 1]}
+
 
 
     print("Clipping images in sagittal direction...")
@@ -82,6 +84,7 @@ def main(_):
                       "right" : clipLabelArray["right"][..., startIdx[1] : endIdx[1] + 1]}
     clipImageArray = {"left" : clipImageArray["left"][..., startIdx[0] : endIdx[0] + 1], 
                       "right" : clipImageArray["right"][..., startIdx[1] : endIdx[1] + 1]}
+
 
     meta["left"]["axial"] = [startIdx[0], endIdx[0] + 1]
     meta["right"]["axial"] = [startIdx[1], endIdx[1] + 1]
@@ -98,6 +101,7 @@ def main(_):
                       "right" : clipLabelArray["right"][:, startIdx[1] : endIdx[1] + 1, :]}
     clipImageArray = {"left" : clipImageArray["left"][:, startIdx[0] : endIdx[0] + 1, :], 
                       "right" : clipImageArray["right"][:, startIdx[1] : endIdx[1] + 1, :]}
+
 
     meta["left"]["coronal"] = [startIdx[0], endIdx[0] + 1] 
     meta["left"]["size"] = clipImageArray["left"].shape
@@ -125,16 +129,17 @@ def main(_):
         clipImageArray[d].SetDirection(label.GetDirection())
         clipImageArray[d].SetOrigin(label.GetOrigin())
         clipImageArray[d].SetSpacing(label.GetSpacing())
-        clipLabelArray[d].SetDirection(label.GetDirection())
-        clipLabelArray[d].SetOrigin(label.GetOrigin())
-        clipLabelArray[d].SetSpacing(label.GetSpacing())
+#        clipLabelArray[d].SetDirection(label.GetDirection())
+#        clipLabelArray[d].SetOrigin(label.GetOrigin())
+#        clipLabelArray[d].SetSpacing(label.GetSpacing())
+        
         
         length = clipImageArray[d].GetSize()[0]
 
-        clipLabelArray[d] = ResampleSize(clipLabelArray[d], (length, 256, 256))
+#        clipLabelArray[d] = ResampleSize(clipLabelArray[d], (length, 256, 256), is_label=True)
         clipImageArray[d] = ResampleSize(clipImageArray[d], (length, 256, 256))
         clipImgArray = sitk.GetArrayFromImage(clipImageArray[d])
-        clipLabArray = sitk.GetArrayFromImage(clipLabelArray[d])
+#        clipLabArray = sitk.GetArrayFromImage(clipLabelArray[d])
         zero = np.zeros((256, 256)) - 1024.
         stackedArrayList = []
         for x in range(length):
@@ -159,13 +164,12 @@ def main(_):
 
             print('Shape of input image: {}'.format(stackedArray.shape))
             print('segmenting...')
-            #paarry = model.predict(stackedArray, batch_size = args.batchsize, verbose = 0)
+            paarry = model.predict(stackedArray, batch_size = args.batchsize, verbose = 0)
             print('stackedArray.shape: {}'.format(stackedArray.shape))
-            #labelarry = np.argmax(paarry, axis=-1).astype(np.uint8)
-            #labelarry = labelarry.reshape(256,256)
+            labelarry = np.argmax(paarry, axis=-1).astype(np.uint8)
+            labelarry = labelarry.reshape(256,256)
             
-            labelarry = clipLabArray[..., x]
-
+#            labelarry = clipLabArray[..., x]
             stackedArrayList.append(labelarry)
 
         stackedArray = np.dstack(stackedArrayList)

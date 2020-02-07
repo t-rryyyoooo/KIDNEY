@@ -500,8 +500,6 @@ def adjustDiff(startIdx, endIdx, maxSize):
     zero = False
     maxsize = False
     cnt = 0
-    print(diff)
-    print(maxSize, startIdx, endIdx)
     if diffIdx[0] < diffIdx[1]:
         axis = 0
     else:
@@ -523,8 +521,6 @@ def adjustDiff(startIdx, endIdx, maxSize):
                 cnt += 1
 
            
-    print(startIdx, endIdx)
-                
     return startIdx, endIdx
 
 

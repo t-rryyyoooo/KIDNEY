@@ -18,13 +18,14 @@ do
     save="${SAVE}/case_00${number}/label.mha"
     ct="${DATA}/case_00${number}${CT}"
     label="${DATA}/case_00${number}${LABEL}"
+    directory="${DATA}/case_00${number}"
 
 
     echo $WEIGHT
     echo $save
     echo "GPU ID: $id"
 
-    python3 segmentationUnet3chAtOnce.py $label $ct $WEIGHT $save -g $id
+    python3 segmentationUnet3chAtOnceNotAligned.py $directory $WEIGHT $save -g $id
 
 
 done
