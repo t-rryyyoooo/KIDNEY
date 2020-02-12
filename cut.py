@@ -142,18 +142,13 @@ def cut_image(imgArray, paddingSize=15, center=None, wh=None, angle=None):#paddi
         # 外接矩形を取得する。
 
         center, _, angle = cv2.minAreaRect(cnt)
-        
     
-    
-
     #intに変換
     center = list(center)
     wh = list(wh)
     center = tuple(map(lambda x: int(x), center))
     wh = tuple(map(lambda x: int(x), wh))#wh = (width, height)
     paddedwh =  tuple(map(lambda x: int(x) + paddingSize, wh))#wh = (width, height)
-
-    
 
     imgwh = (imgArray.shape[1], imgArray.shape[0])#元画像の幅と高さ
 
