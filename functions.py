@@ -245,7 +245,7 @@ def penalty_categorical(y_true,y_pred):
 
     epsilon = K.epsilon()
 
-    result = tf.reduce_sum(array_tf,[0,1,2,3])
+    result = tf.reduce_sum(array_tf,[0,1,2])
 
     #result_pow = tf.pow(result,1.0/3.0)
     result_pow = tf.math.log(result)
