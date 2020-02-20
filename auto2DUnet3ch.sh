@@ -28,12 +28,6 @@ else
         weight="${WEIGHT}${newSuffix}.hdf5"
 fi
 
-training="${TRAINING}${suffix}.txt"
-validation="${VALIDATION}${suffix}.txt"
-weight="${WEIGHT}${suffix}.hdf5"
-histories="${HISTORY}${suffix}.txt"
-initialWeight="${INITIALWEIGHT}${suffix}.hdf5"
-
 echo -n GPU_ID:
 read id
 echo $training
